@@ -2,7 +2,7 @@
 
 School picnics, educational tours, industrial visits. Headline: "LEARNING BEYOND THE CLASSROOM".
 Real tours (from the owner's flyers): Singapore 4N/5D, Mahabaleshwar 1-day picnic, Hampi, Jaipur/Fatehpur Sikri/Agra, Ahmedabad.
-On request, no flyer yet: Goa, Manali, Kerala, Wet'nJoy, Parle Factory visit.
+On request, no flyer yet: Goa, Manali, Kerala, Imagicaa, Wet'nJoy, Parle Factory visit.
 
 ## Rules
 - Never invent prices, itineraries, testimonials, ratings, school logos, accreditations or safety guarantees. Prices only as on the flyers.
@@ -23,3 +23,7 @@ On request, no flyer yet: Goa, Manali, Kerala, Wet'nJoy, Parle Factory visit.
 - awwwards-animations: GSAP + Lenis integrated, cleanup on unmount, reduced motion, only transform and opacity.
 - frontend-design: one memorable moment, copy that says what a button does.
 Known choices that the owner asked for and that bend these rules: Aurora glow, glare/tilt hovers, click sparks.
+
+## Bright pass (Oct 2026)
+- Palette: royal blue, sunshine yellow, sky, grass green, coral on warm white. Light only.
+- Doodles (PATHS + Doodles in App.jsx) are drawn, floated and parallaxed by GSAP. Nav hides on scroll down, shows on scroll up. SideNav = section dots. Gallery shows one photo per place (no loadExtra).

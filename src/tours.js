@@ -14,7 +14,7 @@ export const TOURS = [
 ]
 export const TRAIL = ['singapore', 'mahabaleshwar', 'hampi', 'jaipur', 'ahmedabad', 'educational', 'learn-beyond'].map(n => `/flyers/${n}.jpg`)
 // Destinations you named that have no flyer yet. Shown as "ask us"; confirm availability before launch.
-export const EXTRA = [{ id: 'goa', name: 'Goa', tag: 'On request' }, { id: 'manali', name: 'Manali', tag: 'On request' }, { id: 'kerala', name: 'Kerala', tag: 'On request' }]
+export const EXTRA = [{ id: 'goa', name: 'Goa', tag: 'On request' }, { id: 'manali', name: 'Manali', tag: 'On request' }, { id: 'kerala', name: 'Kerala', tag: 'On request' }, { id: 'imagicaa', name: 'Imagicaa', tag: 'On request' }]
 // Every flyer supplied by the business, in the order received.
 export const FLYERS = [['Singapore tour', 1], ['Learn beyond classrooms', 2], ['Educational tours', 3], ['Visa services', 4], ['Learn beyond classrooms', 5], ['Learn beyond classrooms', 6], ['Learn beyond classrooms', 7], ['Mahabaleshwar picnic', 8], ['Jaipur, Fatehpur Sikri and Agra', 9], ['Hampi tour', 10], ['Singapore tour', 11], ['Ahmedabad tour', 12]]
   .map(([name, n]) => ({ name, src: `/flyers/flyer-${String(n).padStart(2, '0')}.jpg` }))

@@ -4,6 +4,6 @@ export const CONFIG = {
   phones: ['7506040841', '8226822688'],
   whatsapp: '8226822688',
   email: 'memoriesunlimit@gmail.com',
-  address: 'PLACEHOLDER-ADDRESS, Pune, Maharashtra, India',
+  address: 'Shop No. 2, Building 5B, H&M Royal Society, Opposite Talab Factory, Kondhwa Main Road, Kondhwa Khurd, Pune, Maharashtra 411048',
 }
 export const hasAddress = !/^PLACEHOLDER/.test(CONFIG.address)
