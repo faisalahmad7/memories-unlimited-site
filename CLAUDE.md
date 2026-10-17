@@ -7,7 +7,7 @@ On request, no flyer yet: Goa, Manali, Kerala, Imagicaa, Wet'nJoy, Parle Factory
 ## Rules
 - Never invent prices, itineraries, testimonials, ratings, school logos, accreditations or safety guarantees. Prices only as on the flyers.
 - Never invent a phone number or email. All contact details live in src/site.config.js only.
-- The form does not send anything itself. It opens WhatsApp or email with a written message. Never claim an enquiry is sent or stored unless a real backend exists.
+- The form's "Send enquiry" button emails CONFIG.enquiryEmail through the free FormSubmit service (https://formsubmit.co/ajax/...). Only say "sent" when the service confirms success. WhatsApp, email-app and copy buttons remain as fallbacks. Nothing is stored.
 - Free and open-source tools only. Do not migrate frameworks. One smooth-scroll system: Lenis driven by the GSAP ticker.
 - Respect prefers-reduced-motion. Preserve working features. Never say something is tested unless it was run.
 - AI-generated pictures must never be shown as real photos of a school's trip.
@@ -27,3 +27,8 @@ Known choices that the owner asked for and that bend these rules: Aurora glow, g
 ## Bright pass (Oct 2026)
 - Palette: royal blue, sunshine yellow, sky, grass green, coral on warm white. Light only.
 - Doodles (PATHS + Doodles in App.jsx) are drawn, floated and parallaxed by GSAP. Nav hides on scroll down, shows on scroll up. SideNav = section dots. Gallery shows one photo per place (no loadExtra).
+
+## Pass 2 (Oct 2026)
+- Phones/WhatsApp/directions helpers live in site.config.js (fmtPhone, telHref, waLink, DIRECTIONS_URL). Floating WhatsApp button = WhatsAppFab.
+- Tours strip auto-drifts for mouse users only; touch screens use native swipe with scroll-snap.
+- Phone hero is deliberately sparse (doodles, side dots and detail line hidden at 700px and below).

@@ -11,7 +11,7 @@ import ImageTrail from './rb/ImageTrail/ImageTrail.jsx'
 import Magnet from './rb/Magnet/Magnet.jsx'
 import GlareHover from './rb/GlareHover/GlareHover.jsx'
 import ClickSpark from './rb/ClickSpark/ClickSpark.jsx'
-import { CONFIG, hasAddress } from './site.config.js'
+import { CONFIG, hasAddress, fmtPhone, telHref, waLink, WA_HELLO, DIRECTIONS_URL } from './site.config.js'
 import { TOURS, EXTRA, FLYERS } from './tours.js'
 import { loadPhotos, GALLERY } from './photos.js'
 
@@ -90,8 +90,7 @@ function Nav() {
   return (
     <nav className={'nav' + (hide ? ' hide' : '')}>
       <a className="brand" href="#top" onClick={e => { e.preventDefault(); go('#top') }}>
-        <img className="logo" src="/brand/logo-icon.png" alt="" />
-        <span><b>Memories Unlimited</b><small>Tours &amp; Travels</small></span>
+        <img className="logo logo-wide" src="/brand/logo-nav.png" alt="Memories Unlimited Tours and Travels" />
       </a>
       <div>{L('#tours', 'Tours')}{L('#gallery', 'Gallery')}{L('#flyers', 'Flyers')}{L('#enquire', 'Enquire', 'pill')}</div>
     </nav>
@@ -109,7 +108,7 @@ function SideNav() {
     return () => ctx.revert()
   }, [])
   return (
-    <nav className="sn" aria-label="Page sections">
+    <nav className={'sn' + (cur === 'top' ? ' atop' : '')} aria-label="Page sections">
       <span className="sn-line" aria-hidden="true"><span className="sn-fill" /></span>
       {SIDE.map(([id, t]) => <a key={id} href={'#' + id} className={cur === id ? 'on' : ''} aria-label={t} aria-current={cur === id ? 'true' : undefined} onClick={e => { e.preventDefault(); go('#' + id) }}><span className="sn-t">{t}</span><i /></a>)}
     </nav>
@@ -142,7 +141,7 @@ function Hero({ photos }) {
         <SplitText tag="h1" className="h1" text="Learning beyond the classroom" splitType="words, chars" textAlign="left" delay={28} duration={1.1} ease="power4.out" from={{ opacity: 0, y: 90 }} to={{ opacity: 1, y: 0 }} threshold={0} rootMargin="0px" />
         <p>School picnics, educational tours and industrial visits, planned from Pune.</p>
         <div className="stops" role="group" aria-label="Pick a destination">{STOP_IDS.map((id, i) => <button key={id} className={'stop' + (i === si ? ' on' : '')} aria-pressed={i === si} onClick={() => { picked.current = true; setSi(i) }}>{ALL.find(x => x.id === id).name.split(',')[0]}</button>)}</div>
-        <p className="next"><b>{cur.name}</b> {cur.list ? cur.tag + (cur.price ? ', ' + cur.price : '') : 'Ask us about this trip'}</p>
+        <p className="next"><b>{cur.name}</b> <span className="nx-d">{cur.list ? cur.tag + (cur.price ? ', ' + cur.price : '') : 'Ask us about this trip'}</span></p>
         <div className="cta">
           <Magnet padding={80} magnetStrength={3}><button className="btn gold" onClick={() => go('#enquire')}>Plan our school trip</button></Magnet>
           <Magnet padding={80} magnetStrength={3}><button className="btn ghost" onClick={() => go('#tours')}>See our tours</button></Magnet>
@@ -206,8 +205,15 @@ function Reviews() {
       <Doodles items={[['star', NV, 56, '5%', '14%', -12, 1.4], ['star', CORAL, 36, '11%', '60%', 10, 1, 1], ['heart', CORAL, 64, '88%', '18%', 10, 1.6], ['star', NV, 44, '92%', '66%', 16, 1, 1], ['squiggle', NV, 120, '70%', '86%', 0, 1.2, 1]]} />
       <div className="rv-big" ref={big} aria-hidden="true">4.9</div>
       <div className="wrap">
+        <div className="rv-score" role="img" aria-label="Rated 4.9 out of 5 on Google, from 193 reviews">
+          <b className="rv-num" aria-hidden="true">4.9</b>
+          <div className="rv-side" aria-hidden="true">
+            <span className="rv-stars">{[0, 1, 2, 3, 4].map(i => <svg key={i} viewBox="0 0 24 24" className={i === 4 ? 'part' : ''}><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5l-6 3.4 1.3-6.7-5-4.7 6.8-.8z" /></svg>)}</span>
+            <span className="rv-of">out of 5 on Google</span>
+          </div>
+        </div>
         <h2><span ref={cnt}>193</span> Google reviews</h2>
-        <p className="rv-sub">Rated 4.9 on Google.</p>
+        <p className="rv-sub">Rated <mark>4.9 out of 5</mark> on Google.</p>
         <ul className="rqs">{REVIEWS.map(q => <li className="rq" key={q}>{q}</li>)}</ul>
         <p className="rv-src">From our Google listing, Memories Unlimited Tours &amp; Travels, Kondhwa, Pune.</p>
       </div>
@@ -218,7 +224,9 @@ function Reviews() {
 function Tours({ onOpen, photos }) {
   const track = useRef(), pos = useRef(0), paused = useRef(false)
   useEffect(() => {
-    if (reduce) return
+    // Gentle auto-drift is for mouse users only. On phones and tablets it fought the finger (the loop kept
+    // rewriting the scroll position mid-swipe), so touch devices get plain native swiping with snap instead.
+    if (reduce || window.matchMedia('(hover: none), (pointer: coarse)').matches) return
     let raf, dir = 1
     const step = () => {
       const t = track.current
@@ -247,13 +255,13 @@ function Tours({ onOpen, photos }) {
     <section className="tours" id="tours">
       <Doodles items={[['plane', Y, 86, '84%', '3%', 8, 1.6], ['globe', SKY, 74, '3%', '80%', -8, 1.2, 1], ['star', Y, 36, '46%', '91%', 0, 1], ['mountain', MINT, 90, '88%', '84%', 0, 1.4, 1], ['cloud', WH, 100, '42%', '1%', 0, 0.8, 1]]} />
       <div className="th">
-        <div className="rv"><h2>Where we can take your class</h2><p>Prices and inclusions are as printed on our flyers. Tap a tour for details.</p></div>
+        <div className="rv"><h2>Where we can take your class</h2><p>Prices are as printed on our flyers. Tap a tour to see its photos just below.</p></div>
         <div className="arrows"><button onClick={() => nudge(-1)} aria-label="Scroll tours left">‹</button><button onClick={() => nudge(1)} aria-label="Scroll tours right">›</button></div>
       </div>
-      <div className="track" ref={track} onPointerEnter={hold} onPointerLeave={() => resume()} onTouchStart={hold} onTouchEnd={() => resume(1800)} onFocus={hold} onBlur={() => resume()}>
+      <div className="track" ref={track} data-lenis-prevent-touch="true" onPointerEnter={hold} onPointerLeave={() => resume()} onTouchStart={hold} onTouchEnd={() => resume(1800)} onFocus={hold} onBlur={() => resume()}>
         {[...TOURS, ...EXTRA].map(t => { const p = photos[t.id]; return (
           <GlareHover key={t.id} width="clamp(250px, 26vw, 360px)" height="auto" borderRadius="22px" glareColor="#ffffff" glareOpacity={0.4} className="cardwrap">
-            <button className="card" onClick={() => (t.list ? onOpen(t) : askAbout(t.name))} aria-label={`${t.name}: ${t.list ? 'see details' : 'ask us'}`}>
+            <button className="card" onClick={() => (GALLERY[t.id] ? showGallery(t.id) : t.list ? onOpen(t) : askAbout(t.name))} aria-label={`${t.name}: see photos`}>
               {p ? <img src={p.src} alt={t.name} loading="lazy" /> : <span className="phf">{t.name}</span>}
               <span className="meta"><b>{t.name}</b><i>{t.price || (t.list ? 'Price on request' : 'Ask us about this trip')}</i></span>
             </button>
@@ -291,7 +299,7 @@ function Modal({ t, onClose, photos }) {
   )
 }
 
-function Gallery({ gallery, done }) {
+function Gallery({ gallery, done, onOpen }) {
   const [tab, setTab] = useState('singapore')
   const [lb, setLb] = useState(null)
   const g = GALLERY[tab]
@@ -316,6 +324,10 @@ function Gallery({ gallery, done }) {
         <p className="gnote">Photos of the places on each tour. Choose a trip.</p>
         <div className="tabs" role="tablist">{Object.entries(GALLERY).map(([k, v]) => <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => { setTab(k); setLb(null) }}>{v.label}</button>)}</div>
         <p className="gnote">{g.note}</p>
+        {(() => { const t = ALL.find(x => x.id === tab); return t && (
+          <p className="gmore">{t.list
+            ? <button className="btn ghost" onClick={() => onOpen(t)}>{t.name.split(',')[0]} details and flyer</button>
+            : <button className="btn ghost" onClick={() => askAbout(t.name)}>Ask us about {t.name}</button>}</p>) })()}
         <div className="pgrid" key={tab}>
           {shown.length ? shown.map((p, i) => (
             <button key={p.file} className="gi" style={{ '--i': i, '--tilt': (i % 2 ? 1 : -1) * (1 + (i % 3) * 0.5) + 'deg' }} onClick={() => setLb(items.indexOf(p))} aria-label={`Open photo: ${p.cap}`}><img src={p.src} alt={p.cap} loading="lazy" decoding="async" onError={() => setBad(b => ({ ...b, [p.file]: 1 }))} /><span>{p.cap}</span></button>
@@ -380,6 +392,8 @@ function Enquire() {
   const [f, setF] = useState({ name: '', school: '', phone: '', dest: '', count: '', month: '', group: '', note: '' })
   const [err, setErr] = useState({})
   const [msg, setMsg] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(false)
   const head = useRef(), first = useRef(true)
   const set = k => e => setF(v => ({ ...v, [k]: e.target.value }))
   useEffect(() => { const h = e => { setF(v => ({ ...v, dest: e.detail })); setStep(1); setErr({}); setMsg('') }; window.addEventListener('mu-dest', h); return () => window.removeEventListener('mu-dest', h) }, [])
@@ -397,11 +411,30 @@ function Enquire() {
     }
     setErr(e); return !Object.keys(e).length
   }
-  const go2 = n => { setMsg(''); setStep(n) }
+  const go2 = n => { setMsg(''); setSent(false); setStep(n) }
   const next = () => { if (check(step)) go2(step + 1) }
   const text = () => ['Hello Memories Unlimited, I would like to enquire about a school tour.', `Name: ${f.name}`, `School: ${f.school}`, `Phone: ${f.phone}`, `Destination: ${f.dest}`, `Students (approx): ${f.count || '-'}`, `Preferred month: ${f.month || '-'}`, `Class group: ${f.group || '-'}`, `Note: ${f.note || '-'}`].join('\n')
-  const wa = () => { window.open(`https://wa.me/91${CONFIG.whatsapp}?text=${encodeURIComponent(text())}`, '_blank', 'noopener'); setMsg('WhatsApp should now be open with your message ready. Press Send there to finish.') }
-  const mail = () => { window.location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent('School tour enquiry: ' + f.dest)}&body=${encodeURIComponent(text())}`; setMsg('Your email app should now be open with your message ready. Press Send there to finish.') }
+  const wa = () => { window.open(waLink(text()), '_blank', 'noopener'); setMsg('WhatsApp should now be open with your message ready. Press Send there to finish.') }
+  const mail = () => { window.location.href = `mailto:${CONFIG.enquiryEmail}?subject=${encodeURIComponent('School tour enquiry: ' + f.dest)}&body=${encodeURIComponent(text())}`; setMsg('Your email app should now be open with your message ready. Press Send there to finish.') }
+  // Real delivery: the enquiry is emailed to CONFIG.enquiryEmail as a tidy table (free FormSubmit service).
+  // We only say "sent" when the service confirms it. If it fails, WhatsApp and email stay available.
+  const send = async () => {
+    if (busy || sent) return
+    setBusy(true); setMsg('Sending your enquiry...')
+    const body = {
+      _subject: `New school tour enquiry: ${f.dest} - ${f.school}`, _template: 'table', _captcha: 'false', _honey: '',
+      'Name': f.name.trim(), 'School': f.school.trim(), 'Phone': f.phone.trim(), 'Destination': f.dest,
+      'Students (approx)': f.count || '-', 'Preferred month': f.month || '-', 'Class group': f.group || '-', 'Note': f.note.trim() || '-',
+      'Sent from': 'Memories Unlimited website enquiry form',
+    }
+    try {
+      const r = await fetch(`https://formsubmit.co/ajax/${CONFIG.enquiryEmail}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) })
+      const j = await r.json().catch(() => ({}))
+      if (r.ok && (j.success === true || j.success === 'true')) { setSent(true); setMsg(`Thank you, ${f.name.trim().split(' ')[0]}! Your enquiry has been sent. We will contact you on ${f.phone.trim()}.`) }
+      else throw new Error(j.message || r.status)
+    } catch { setMsg('We could not send this automatically just now. Please use Send on WhatsApp or Send by email below, or call us.') }
+    setBusy(false)
+  }
   const copy = async () => { try { await navigator.clipboard.writeText(text()); setMsg('Message copied. Paste it into WhatsApp, SMS or email.') } catch { setMsg('Could not copy automatically. Please select the message above and copy it.') } }
   const fld = (id, label, hint, children) => (
     <div className={'fld' + (err[id] ? ' bad' : '')}>
@@ -421,9 +454,10 @@ function Enquire() {
           <h2>Plan your school trip with us</h2>
           <p className="eintro">Tell us where you would like to go, when, and how many students. It takes about a minute.</p>
           <div className="qcs">
-            <a className="qc" href={`tel:+91${CONFIG.phones[0]}`}><span><b>Call us</b><small>{CONFIG.phones[0]}</small></span></a>
-            <a className="qc" href={`https://wa.me/91${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer"><span><b>Chat on WhatsApp</b><small>{CONFIG.whatsapp}</small></span></a>
-            <a className="qc" href={`mailto:${CONFIG.email}`}><span><b>Email us</b><small>{CONFIG.email}</small></span></a>
+            <a className="qc" href={telHref(CONFIG.phones[0])}><span><b>Call us</b><small>{fmtPhone(CONFIG.phones[0])}</small></span></a>
+            <a className="qc" href={waLink()} target="_blank" rel="noopener noreferrer"><span><b>Chat on WhatsApp</b><small>{fmtPhone(CONFIG.whatsapp)}</small></span></a>
+            <a className="qc" href={`mailto:${CONFIG.email}?subject=${encodeURIComponent('School trip enquiry')}&body=${encodeURIComponent(WA_HELLO)}`}><span><b>Email us</b><small>{CONFIG.email}</small></span></a>
+            {hasAddress && <a className="qc" href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer"><span><b>Visit us, get directions</b><small>Kondhwa, Pune. Opens Google Maps</small></span></a>}
           </div>
           <p className="fine2">Prefer not to fill the form? Use any option above.</p>
           <p className="scrawl" aria-hidden="true">no sign-up, nothing sent until you press send!</p>
@@ -431,7 +465,7 @@ function Enquire() {
         <form className="ecard rv" onSubmit={e => { e.preventDefault(); if (step < 2) next() }} noValidate aria-label="School tour enquiry">
           <ol className="steps" aria-label="Enquiry progress">{STEPS.map((t, i) => <li key={t} className={i < step ? 'done' : i === step ? 'now' : ''} aria-current={i === step ? 'step' : undefined}><span>{i < step ? '✓' : i + 1}</span>{t}</li>)}</ol>
           <div className="stepbox" key={step}>
-            <h3 tabIndex={-1} ref={head} className="sh">{['Tell us about you', 'Tell us about the trip', 'Check your enquiry']}[step]</h3>
+            <h3 tabIndex={-1} ref={head} className="sh">{['Tell us about you', 'Tell us about the trip', 'Check your enquiry'][step]}</h3>
             {step === 0 && (<>
               {fld("name", "Your name", null, <input {...ad('name')} value={f.name} onChange={set('name')} autoComplete="name" required />)}
               {fld("school", "School name", null, <input {...ad('school')} value={f.school} onChange={set('school')} autoComplete="organization" required />)}
@@ -452,7 +486,7 @@ function Enquire() {
             </>)}
             {step === 2 && (<>
               <pre className="sum" tabIndex={0} aria-label="Your enquiry message">{text()}</pre>
-              <p className="fine2">Nothing is sent until you press Send in WhatsApp or your email app.</p>
+              <p className="fine2">Nothing is sent until you press Send enquiry, or Send in WhatsApp or your email app.</p>
             </>)}
           </div>
           <div className="nav2">
@@ -460,6 +494,7 @@ function Enquire() {
             {step === 0 && <button type="submit" className="btn gold big">Continue to trip details</button>}
             {step === 1 && <button type="submit" className="btn gold big">Review my enquiry</button>}
             {step === 2 && (<>
+              <button type="button" className="btn gold big" onClick={send} disabled={busy || sent}>{sent ? 'Enquiry sent' : busy ? 'Sending...' : 'Send enquiry'}</button>
               <button type="button" className="btn wa" onClick={wa}>Send on WhatsApp</button>
               <button type="button" className="btn out" onClick={mail}>Send by email</button>
               <button type="button" className="btn out" onClick={copy}>Copy message</button>
@@ -469,6 +504,14 @@ function Enquire() {
         </form>
       </div>
     </section>
+  )
+}
+
+function WhatsAppFab() {
+  return (
+    <a className="wafab" href={waLink()} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16.04 3C9.4 3 4 8.4 4 15.04c0 2.3.66 4.5 1.9 6.4L4 29l7.75-1.86a12.03 12.03 0 0 0 4.29.8C22.68 27.94 28 22.6 28 15.96 28 9.3 22.68 3 16.04 3zm0 22.1c-1.4 0-2.77-.37-3.97-1.08l-.28-.17-4.6 1.1 1.2-4.46-.19-.3a9.16 9.16 0 0 1-1.4-4.86c0-5.08 4.13-9.2 9.22-9.2 5.08 0 9.2 4.12 9.2 9.2 0 5.08-4.12 9.77-9.18 9.77zm5.04-6.88c-.28-.14-1.64-.8-1.9-.9-.25-.1-.43-.14-.62.14-.18.28-.71.9-.87 1.08-.16.19-.32.21-.6.07-.27-.14-1.17-.43-2.22-1.37-.82-.73-1.37-1.64-1.53-1.91-.16-.28-.02-.43.12-.57.12-.12.28-.32.41-.48.14-.16.18-.28.28-.46.09-.19.05-.35-.02-.49-.07-.14-.62-1.5-.85-2.05-.22-.54-.45-.46-.62-.47h-.53c-.18 0-.48.07-.73.35-.25.27-.96.94-.96 2.29s.98 2.66 1.12 2.84c.14.19 1.94 2.96 4.7 4.15.66.28 1.17.45 1.57.58.66.21 1.26.18 1.73.11.53-.08 1.64-.67 1.87-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z" /></svg>
+    </a>
   )
 }
 
@@ -491,7 +534,6 @@ function Footer() {
     return () => ctx.revert()
   }, [])
   const L = (id, t) => <li key={id}><a href={id} onClick={e => { e.preventDefault(); go(id) }}>{t}</a></li>
-  const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.address)}`
   return (
     <footer className="foot" ref={root}>
       <Wave fill="#fffdf2" />
@@ -499,7 +541,7 @@ function Footer() {
       <div className="wrap">
         <div className="fcta">
           <div><h2>Ready to plan your class trip?</h2><p>Tell us the destination, the month and the number of students. We will reply with the details.</p></div>
-          <div className="fctab"><button className="btn gold big" onClick={() => go('#enquire')}>Plan our school trip</button><a className="btn ghost big" href={`tel:+91${CONFIG.phones[0]}`}>Call {CONFIG.phones[0]}</a></div>
+          <div className="fctab"><button className="btn gold big" onClick={() => go('#enquire')}>Plan our school trip</button><a className="btn ghost big" href={telHref(CONFIG.phones[0])}>Call {fmtPhone(CONFIG.phones[0])}</a></div>
         </div>
         <div className="fgrid">
           <div className="fcol fbrand">
@@ -511,10 +553,11 @@ function Footer() {
           <div className="fcol"><h3>Destinations</h3><ul>{ALL.map(t => <li key={t.id}><a href="#gallery" onClick={e => { e.preventDefault(); GALLERY[t.id] ? showGallery(t.id) : askAbout(t.name) }}>{t.name.split(',')[0]}</a></li>)}</ul></div>
           <div className="fcol"><h3>Contact</h3>
             <ul className="fcon">
-              {CONFIG.phones.map(p => <li key={p}><Ic n="phone" /><a href={`tel:+91${p}`}>{p}</a></li>)}
-              <li><Ic n="chat" /><a href={`https://wa.me/91${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp {CONFIG.whatsapp}</a></li>
+              {CONFIG.phones.map(p => <li key={p}><Ic n="phone" /><a href={telHref(p)}>{fmtPhone(p)}</a></li>)}
+              <li><Ic n="chat" /><a href={waLink()} target="_blank" rel="noopener noreferrer">WhatsApp {fmtPhone(CONFIG.whatsapp)}</a></li>
               <li><Ic n="mail" /><a href={`mailto:${CONFIG.email}`}>{CONFIG.email}</a></li>
-              {hasAddress && <li><Ic n="pin" /><a href={maps} target="_blank" rel="noopener noreferrer">{CONFIG.address}</a></li>}
+              {hasAddress && <li><Ic n="pin" /><a href={CONFIG.mapsUrl} target="_blank" rel="noopener noreferrer">{CONFIG.address}</a></li>}
+              {hasAddress && <li className="fdir"><a className="btn gold" href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer">Get directions</a></li>}
             </ul>
           </div>
         </div>
@@ -579,21 +622,46 @@ export default function App() {
             <p><b>Pune</b><span>Kondhwa Khurd, H&amp;M Royal Society</span></p>
           </div>
           <div className="abt-cards">
-            <div className="abt-card">
-              <h3>What we do</h3>
-              <ul>
-                <li>Domestic and international holiday packages</li>
-                <li>Group tours and corporate retreats</li>
-                <li>Flight and hotel bookings</li>
-              </ul>
-            </div>
             <div className="abt-card hi">
-              <h3>What we are known for</h3>
+              <h3>Made for students</h3>
               <p>Safe, fun and experiential <mark>educational trips and nature camps</mark> for schools and colleges, from small itineraries to groups of 900+ travellers.</p>
             </div>
             <div className="abt-card">
-              <h3>Find us</h3>
-              <p>Shop No. 2, Building 5B, H&amp;M Royal Society, Opposite Talab Factory, Kondhwa Main Road, Pune.</p>
+              <h3>What students get to do</h3>
+              <ul>
+                <li>Walk through Hampi's temples and see the Stone Chariot</li>
+                <li>Explore Gujarat Science City and Sabarmati Ashram</li>
+                <li>Go karting and boating on a one-day Mahabaleshwar picnic</li>
+                <li>Visit Singapore: Universal Studios, Sentosa and more</li>
+              </ul>
+            </div>
+            <div className="abt-card">
+              <h3>For teachers and schools</h3>
+              <p>Tell us the destination, the month and the number of students. We reply with the details.</p>
+              <p className="abt-also">We also arrange holiday packages, group tours, corporate retreats, and flight and hotel bookings.</p>
+              <button className="btn gold" onClick={() => go('#enquire')}>Plan our school trip</button>
+            </div>
+          </div>
+          {(() => { const d = TOURS.find(t => t.id === 'mahabaleshwar'); return d && (
+            <div className="abt-day">
+              <span className="abt-tag">One-day trip</span>
+              <div className="abt-day-t">
+                <h3>A school picnic in a single day, from Pune</h3>
+                <p>{d.name}, {d.price}. {d.list.join(', ')}.</p>
+              </div>
+              <div className="abt-day-b">
+                <button className="btn gold" onClick={() => askAbout(d.name)}>Enquire about a one-day picnic</button>
+                <button className="btn ghost" onClick={() => setOpen(d)}>See what is included</button>
+              </div>
+            </div>) })()}
+          <div className="abt-find">
+            <div>
+              <h3>Visit us in Pune</h3>
+              <p>{CONFIG.address}</p>
+            </div>
+            <div className="abt-find-b">
+              <a className="btn gold" href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer">Get directions</a>
+              <a className="btn ghost" href={CONFIG.mapsUrl} target="_blank" rel="noopener noreferrer">View on Google Maps</a>
             </div>
           </div>
         </div>
@@ -604,7 +672,7 @@ export default function App() {
       </div>
       <Reel />
       <Tours onOpen={setOpen} photos={photos} />
-      <Gallery gallery={gallery} done={done} />
+      <Gallery gallery={gallery} done={done} onOpen={setOpen} />
       <Reviews />
       <section className="trail" id="trail">
         <Wave fill="#ffc83d" />
@@ -619,6 +687,7 @@ export default function App() {
       </section>
       <Enquire />
       <Footer />
+      {ready && <WhatsAppFab />}
       {fb !== null && <FlyerBox i={fb} setI={setFb} />}
       {open && <Modal t={open} onClose={() => setOpen(null)} photos={photos} />}
     </ClickSpark>

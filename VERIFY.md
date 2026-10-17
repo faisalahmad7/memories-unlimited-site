@@ -20,3 +20,6 @@
 3. Which destinations (Goa, Manali, Kerala, Wet'nJoy, Parle) do you really offer?
 4. Do you have real photos from past trips, and permission to show them?
 5. Do you want credits for the destination photos back in the footer, or will you replace them with your own?
+
+## Enquiry email (FormSubmit)
+The first form submission after launch makes FormSubmit email faisalahmadshaikh0@gmail.com an activation link. Click it once, then submit a test enquiry. Until then the form shows the WhatsApp/email fallback message.
