@@ -645,16 +645,36 @@ export default function App() {
               <div className="abt-card hi">
                 <h3>Made for students</h3>
                 <p>
-                  Safe, memorable <mark>school trips and nature camps</mark>
-                  designed for every group.
+                  Safe, memorable <mark>school trips and nature camps</mark> designed for every group.
                 </p>
+                <ul className="abt-list">
+                  <li>School picnics</li>
+                  <li>Educational tours</li>
+                  <li>Industrial visits</li>
+                  <li>Nature camps</li>
+                </ul>
+                <p className="abt-also">
+                  Our Singapore tour comes with a tour manager and guide, AC coach travel and 24x7 assistance.
+                </p>
+                <button className="btn gold" onClick={() => go('#enquire')}>
+                  Send an enquiry
+                </button>
               </div>
 
-              <div className="abt-card big">
+              <div className="abt-card">
                 <h3>Learn & explore</h3>
                 <p>
                   From Hampi and Mahabaleshwar to Singapore, discover new places and create memories.
                 </p>
+                <ul className="abt-list abt-dest">
+                  {TOURS.map(t => <li key={t.id}><b>{t.name}</b><span>{t.tag}</span></li>)}
+                </ul>
+                <p className="abt-also">
+                  Goa, Manali, Kerala and Imagicaa are available on request.
+                </p>
+                <button className="btn gold" onClick={() => go('#tours')}>
+                  See our tours
+                </button>
               </div>
 
               <div className="abt-card">
