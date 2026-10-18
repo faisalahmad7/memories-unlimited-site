@@ -82,9 +82,24 @@ function Nav() {
   const [hide, setHide] = useState(false)
   useEffect(() => {
     let y = window.scrollY
-    const f = () => { const n = window.scrollY, d = n - y; if (n < 60) setHide(false); else if (d > 2) setHide(true); else if (d < -2) setHide(false); y = n }
+
+    const f = () => {
+      const n = window.scrollY
+
+      if (n < 60) {
+        setHide(false)
+      } else {
+        setHide(true)
+      }
+
+      y = n
+    }
+
     window.addEventListener('scroll', f, { passive: true })
-    return () => window.removeEventListener('scroll', f)
+
+    return () => {
+      window.removeEventListener('scroll', f)
+    }
   }, [])
   const L = (id, t, cls) => <a className={cls} href={id} onClick={e => { e.preventDefault(); go(id) }}>{t}</a>
   return (
@@ -259,13 +274,15 @@ function Tours({ onOpen, photos }) {
         <div className="arrows"><button onClick={() => nudge(-1)} aria-label="Scroll tours left">‹</button><button onClick={() => nudge(1)} aria-label="Scroll tours right">›</button></div>
       </div>
       <div className="track" ref={track} data-lenis-prevent-touch="true" onPointerEnter={hold} onPointerLeave={() => resume()} onTouchStart={hold} onTouchEnd={() => resume(1800)} onFocus={hold} onBlur={() => resume()}>
-        {[...TOURS, ...EXTRA].map(t => { const p = photos[t.id]; return (
-          <GlareHover key={t.id} width="clamp(250px, 26vw, 360px)" height="auto" borderRadius="22px" glareColor="#ffffff" glareOpacity={0.4} className="cardwrap">
-            <button className="card" onClick={() => (GALLERY[t.id] ? showGallery(t.id) : t.list ? onOpen(t) : askAbout(t.name))} aria-label={`${t.name}: see photos`}>
-              {p ? <img src={p.src} alt={t.name} loading="lazy" /> : <span className="phf">{t.name}</span>}
-              <span className="meta"><b>{t.name}</b><i>{t.price || (t.list ? 'Price on request' : 'Ask us about this trip')}</i></span>
-            </button>
-          </GlareHover>) })}
+        {[...TOURS, ...EXTRA].map(t => {
+          const p = photos[t.id]; return (
+            <GlareHover key={t.id} width="clamp(250px, 26vw, 360px)" height="auto" borderRadius="22px" glareColor="#ffffff" glareOpacity={0.4} className="cardwrap">
+              <button className="card" onClick={() => (GALLERY[t.id] ? showGallery(t.id) : t.list ? onOpen(t) : askAbout(t.name))} aria-label={`${t.name}: see photos`}>
+                {p ? <img src={p.src} alt={t.name} loading="lazy" /> : <span className="phf">{t.name}</span>}
+                <span className="meta"><b>{t.name}</b><i>{t.price || (t.list ? 'Price on request' : 'Ask us about this trip')}</i></span>
+              </button>
+            </GlareHover>)
+        })}
       </div>
     </section>
   )
@@ -324,10 +341,12 @@ function Gallery({ gallery, done, onOpen }) {
         <p className="gnote">Photos of the places on each tour. Choose a trip.</p>
         <div className="tabs" role="tablist">{Object.entries(GALLERY).map(([k, v]) => <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => { setTab(k); setLb(null) }}>{v.label}</button>)}</div>
         <p className="gnote">{g.note}</p>
-        {(() => { const t = ALL.find(x => x.id === tab); return t && (
-          <p className="gmore">{t.list
-            ? <button className="btn ghost" onClick={() => onOpen(t)}>{t.name.split(',')[0]} details and flyer</button>
-            : <button className="btn ghost" onClick={() => askAbout(t.name)}>Ask us about {t.name}</button>}</p>) })()}
+        {(() => {
+          const t = ALL.find(x => x.id === tab); return t && (
+            <p className="gmore">{t.list
+              ? <button className="btn ghost" onClick={() => onOpen(t)}>{t.name.split(',')[0]} details and flyer</button>
+              : <button className="btn ghost" onClick={() => askAbout(t.name)}>Ask us about {t.name}</button>}</p>)
+        })()}
         <div className="pgrid" key={tab}>
           {shown.length ? shown.map((p, i) => (
             <button key={p.file} className="gi" style={{ '--i': i, '--tilt': (i % 2 ? 1 : -1) * (1 + (i % 3) * 0.5) + 'deg' }} onClick={() => setLb(items.indexOf(p))} aria-label={`Open photo: ${p.cap}`}><img src={p.src} alt={p.cap} loading="lazy" decoding="async" onError={() => setBad(b => ({ ...b, [p.file]: 1 }))} /><span>{p.cap}</span></button>
@@ -594,7 +613,7 @@ export default function App() {
         gsap.to(d.firstChild, { y: 'random(-12,12)', rotation: 'random(-7,7)', duration: 'random(2.6,4.6)', ease: 'sine.inOut', repeat: -1, yoyo: true, delay: Math.random() * 2 })
       })
     })
-    let off = () => {}
+    let off = () => { }
     if (!reduce && window.matchMedia('(pointer:fine)').matches) {
       const mv = [...document.querySelectorAll('.dood')].map(d => ({ x: gsap.quickTo(d, 'x', { duration: 1, ease: 'power3' }), y: gsap.quickTo(d, 'y', { duration: 1, ease: 'power3' }), k: +d.dataset.d || 1 }))
       const mm = e => { const nx = e.clientX / innerWidth - 0.5, ny = e.clientY / innerHeight - 0.5; mv.forEach(m => { m.x(-nx * 26 * m.k); m.y(-ny * 26 * m.k) }) }
@@ -614,58 +633,63 @@ export default function App() {
         <Doodles items={[['sun', Y, 96, '86%', '6%', 0, 1.2], ['book', SKY, 80, '4%', '12%', -8, 1.4, 1], ['pencil', CORAL, 76, '90%', '72%', 16, 1.6, 1], ['star', NV, 38, '12%', '80%', 8, 1], ['cloud', SKY, 90, '50%', '4%', 0, 0.8, 1], ['spark', CORAL, 30, '70%', '86%', 0, 1.6]]} />
         <svg className="mroute" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path id="mrp" d="M-20 260 C 220 40, 480 330, 700 150 S 1100 20, 1240 120" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="2 14" strokeLinecap="round" />{!reduce && <path d="M-14 -9 L22 0 L-14 9 L-8 0 Z" fill="currentColor"><animateMotion dur="14s" repeatCount="indefinite" rotate="auto"><mpath href="#mrp" /></animateMotion></path>}</svg>
         <div className="wrap">
-        <ScrollReveal baseOpacity={0.12} baseRotation={2} blurStrength={6} textClassName="mtext">Learning does not stop at the classroom door. History becomes a temple you can touch. Science becomes a city you can walk through.</ScrollReveal>
-        <div className="abt">
-          <div className="abt-stats">
-            <p><b>{new Date().getFullYear() - 2013}</b><span>years of travel, since 2013</span></p>
-            <p><b>900+</b><span>students in our largest groups</span></p>
-            <p><b>Pune</b><span>Kondhwa Khurd, H&amp;M Royal Society</span></p>
-          </div>
-          <div className="abt-cards">
-            <div className="abt-card hi">
-              <h3>Made for students</h3>
-              <p>Safe, fun and experiential <mark>educational trips and nature camps</mark> for schools and colleges, from small itineraries to groups of 900+ travellers.</p>
+          <ScrollReveal baseOpacity={0.12} baseRotation={2} blurStrength={6} textClassName="mtext">Learning does not stop at the classroom door. History becomes a temple you can touch. Science becomes a city you can walk through.</ScrollReveal>
+          <div className="abt">
+            <div className="abt-stats">
+              <p><b>{new Date().getFullYear() - 2013}</b><span>years of travel, since 2013</span></p>
+              <p><b>900+</b><span>students in our largest groups</span></p>
+              <p><b>Pune</b><span>Kondhwa Khurd, H&amp;M Royal Society</span></p>
             </div>
-            <div className="abt-card">
-              <h3>What students get to do</h3>
-              <ul>
-                <li>Walk through Hampi's temples and see the Stone Chariot</li>
-                <li>Explore Gujarat Science City and Sabarmati Ashram</li>
-                <li>Go karting and boating on a one-day Mahabaleshwar picnic</li>
-                <li>Visit Singapore: Universal Studios, Sentosa and more</li>
-              </ul>
-            </div>
-            <div className="abt-card">
-              <h3>For teachers and schools</h3>
-              <p>Tell us the destination, the month and the number of students. We reply with the details.</p>
-              <p className="abt-also">We also arrange holiday packages, group tours, corporate retreats, and flight and hotel bookings.</p>
-              <button className="btn gold" onClick={() => go('#enquire')}>Plan our school trip</button>
-            </div>
-          </div>
-          {(() => { const d = TOURS.find(t => t.id === 'mahabaleshwar'); return d && (
-            <div className="abt-day">
-              <span className="abt-tag">One-day trip</span>
-              <div className="abt-day-t">
-                <h3>A school picnic in a single day, from Pune</h3>
-                <p>{d.name}, {d.price}. {d.list.join(', ')}.</p>
+
+            <div className="abt-cards">
+              <div className="abt-card hi">
+                <h3>Made for students</h3>
+                <p>
+                  Safe, memorable <mark>school trips and nature camps</mark>
+                  designed for every group.
+                </p>
               </div>
-              <div className="abt-day-b">
-                <button className="btn gold" onClick={() => askAbout(d.name)}>Enquire about a one-day picnic</button>
-                <button className="btn ghost" onClick={() => setOpen(d)}>See what is included</button>
+
+              <div className="abt-card">
+                <h3>Learn & explore</h3>
+                <p>
+                  From Hampi and Mahabaleshwar to Singapore, discover new places and create memories.
+                </p>
+                <p>Explore new destinations and cultures</p>
               </div>
-            </div>) })()}
-          <div className="abt-find">
-            <div>
-              <h3>Visit us in Pune</h3>
-              <p>{CONFIG.address}</p>
+
+              <div className="abt-card">
+                <h3>Easy trip planning</h3>
+                <p>
+                  Share your destination, travel month and group size.
+                  We'll handle the details.
+                </p>
+                <p className="abt-also">
+                  Holiday packages, group tours, flights and hotels too.
+                </p>
+                <button className="btn gold" onClick={() => go('#enquire')}>
+                  Plan our school trip
+                </button>
+              </div>
             </div>
-            <div className="abt-find-b">
-              <a className="btn gold" href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer">Get directions</a>
-              <a className="btn ghost" href={CONFIG.mapsUrl} target="_blank" rel="noopener noreferrer">View on Google Maps</a>
-            </div>
+
+            {(() => {
+              const d = TOURS.find(t => t.id === 'mahabaleshwar'); return d && (
+                <div className="abt-day">
+                  <span className="abt-tag">One-day trip</span>
+                  <div className="abt-day-t">
+                    <h3>A school picnic in a single day, from Pune</h3>
+                    <p>{d.name}, {d.price}. {d.list.join(', ')}.</p>
+                  </div>
+                  <div className="abt-day-b">
+                    <button className="btn gold" onClick={() => askAbout(d.name)}>Enquire about a one-day picnic</button>
+                    <button className="btn ghost" onClick={() => setOpen(d)}>See what is included</button>
+                  </div>
+                </div>)
+            })()}
+
           </div>
-        </div>
-      </div></section>
+        </div></section>
       <div className="band">
         {reduce ? <p className="static">School picnics ✦ Educational tours ✦ Industrial visits</p>
           : <ScrollVelocity texts={['School picnics ✦ Educational tours ✦ Industrial visits ✦', 'Learning beyond the classroom ✦ From Pune ✦']} velocity={70} className="bandtext" />}
