@@ -650,12 +650,11 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="abt-card">
+              <div className="abt-card big">
                 <h3>Learn & explore</h3>
                 <p>
                   From Hampi and Mahabaleshwar to Singapore, discover new places and create memories.
                 </p>
-                <p>Explore new destinations and cultures</p>
               </div>
 
               <div className="abt-card">
