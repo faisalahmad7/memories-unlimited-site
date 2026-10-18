@@ -257,7 +257,7 @@ function PopRating({ popRef, cardRef, raysRef, numRef }) {
 // Only the review lines and ratings the owner supplied from the Google listing.
 const REVIEWS = ['Special mention for the frequent water checks and delicious food arrangements.', 'Catered to the tastes of the children as well as the staff.', 'The food, the people, the vibes - everything was top-notch!']
 function Reviews() {
-  const root = useRef(), big = useRef(), cnt = useRef()
+  const root = useRef(), big = useRef(), cnt = useRef(), num = useRef()
   const popRef = useRef(), cardRef = useRef(), raysRef = useRef(), numRef = useRef()
   useEffect(() => {
     if (reduce) return
@@ -283,13 +283,22 @@ function Reviews() {
   }, [])
   useEffect(() => {
     if (reduce) return
+    let io = null
     const ctx = gsap.context(() => {
       gsap.from('.rq', { y: 60, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.15, scrollTrigger: { trigger: root.current, start: 'top 75%', once: true } })
       gsap.fromTo(big.current, { yPercent: 10 }, { yPercent: -10, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true } })
-      countTo(big.current, 4.9, 1, null, root.current)
-      countTo(cnt.current, 193, 0, null, root.current)
+      // Count-up plays on every page load: as soon as the section is on screen, even if the browser restored
+      // the scroll position there after a refresh.
+      const els = [[big.current, 4.9, 1], [num.current, 4.9, 1], [cnt.current, 193, 0]]
+      els.forEach(([el, , d]) => { if (el) el.textContent = (0).toFixed(d) })
+      io = new IntersectionObserver(es => {
+        if (!es.some(x => x.isIntersecting)) return
+        io.disconnect()
+        els.forEach(([el, to, d]) => { if (!el) return; const n = { v: 0 }; gsap.to(n, { v: to, duration: 1.8, ease: 'power2.out', onUpdate: () => { el.textContent = n.v.toFixed(d) } }) })
+      }, { threshold: 0.2 })
+      io.observe(root.current)
     }, root)
-    return () => ctx.revert()
+    return () => { io && io.disconnect(); ctx.revert() }
   }, [])
   return (
     <section className="rvs" id="reviews" ref={root}>
@@ -299,7 +308,7 @@ function Reviews() {
       <div className="rv-big" ref={big} aria-hidden="true">4.9</div>
       <div className="wrap">
         <div className="rv-score" role="img" aria-label="Rated 4.9 out of 5 on Google, from 193 reviews">
-          <b className="rv-num" aria-hidden="true">4.9</b>
+          <b className="rv-num" ref={num} aria-hidden="true">4.9</b>
           <div className="rv-side" aria-hidden="true">
             <span className="rv-stars">{[0, 1, 2, 3, 4].map(i => <svg key={i} viewBox="0 0 24 24" className={i === 4 ? 'part' : ''}><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5l-6 3.4 1.3-6.7-5-4.7 6.8-.8z" /></svg>)}</span>
             <span className="rv-of">out of 5 on Google</span>
