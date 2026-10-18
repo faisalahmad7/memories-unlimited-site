@@ -3174,7 +3174,7 @@ body {
 }
 
 
-/* ===== Pass 3 (Oct 2026): phone flyers, tighter side dots, compact footer, 2-up gallery, pop-art 4.9 ===== */
+/* ===== Pass 3 (Oct 2026): phone flyers, tighter side dots, compact footer, 2-up gallery ===== */
 
 /* Third About card: give the button room under the text */
 .abt-card .abt-also {
@@ -3251,82 +3251,6 @@ body {
 .fl-more,
 .fl-in {
     display: contents
-}
-
-/* Pop-art rating burst (portal on <body>); stays hidden until the script plays it */
-.pop {
-    position: fixed;
-    inset: 0;
-    display: none;
-    place-items: center;
-    z-index: 60;
-    pointer-events: none;
-    overflow: hidden
-}
-
-.pop-rays {
-    position: absolute;
-    inset: -30%;
-    opacity: 0;
-    background: repeating-conic-gradient(from 0deg, rgba(255, 200, 61, .7) 0 7deg, rgba(255, 107, 87, 0) 7deg 18deg);
-    -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 62%);
-    mask-image: radial-gradient(circle, #000 12%, transparent 62%)
-}
-
-.pop-card {
-    position: relative;
-    width: min(82vw, 340px);
-    height: auto;
-    overflow: visible;
-    filter: drop-shadow(0 10px 0 rgba(15, 42, 115, .25))
-}
-
-.pop-sh {
-    fill: var(--deep)
-}
-
-.pop-b1 {
-    fill: var(--coral);
-    stroke: var(--deep);
-    stroke-width: 6;
-    stroke-linejoin: round
-}
-
-.pop-dt {
-    fill: url(#pop-dots)
-}
-
-.pop-b2 {
-    fill: var(--gold);
-    stroke: var(--deep);
-    stroke-width: 5;
-    stroke-linejoin: round
-}
-
-.pop-n {
-    font-size: 92px;
-    font-weight: 900;
-    letter-spacing: -.04em;
-    fill: #fff;
-    stroke: var(--deep);
-    stroke-width: 9px;
-    stroke-linejoin: round;
-    paint-order: stroke fill
-}
-
-.pop-st {
-    fill: var(--deep)
-}
-
-.pop-rb {
-    fill: var(--deep)
-}
-
-.pop-rt {
-    font-size: 21px;
-    font-weight: 900;
-    letter-spacing: .06em;
-    fill: var(--gold)
 }
 
 @media(max-width:700px) {

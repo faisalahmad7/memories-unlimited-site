@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -234,53 +233,10 @@ function countTo(el, to, dec, trig, root) {
   const n = { v: 0 }
   gsap.to(n, { v: to, duration: 1.8, ease: 'power2.out', scrollTrigger: { trigger: root, start: 'top 75%', once: true }, onUpdate: () => { el.textContent = n.v.toFixed(dec) } })
 }
-// Pop-art "4.9" that bursts onto phone screens the first time the reviews come into view (once per page load).
-let popDone = false
-const burstPts = (cx, cy, ro, ri, n) => Array.from({ length: n * 2 }, (_, k) => { const a = (Math.PI * k) / n - Math.PI / 2, r = k % 2 ? ri : ro; return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1) }).join(' ')
-const STAR = 'M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5l-6 3.4 1.3-6.7-5-4.7 6.8-.8z'
-function PopRating({ popRef, cardRef, raysRef, numRef }) {
-  return createPortal(
-    <div className="pop" ref={popRef} aria-hidden="true">
-      <div className="pop-rays" ref={raysRef} />
-      <svg className="pop-card" ref={cardRef} viewBox="0 0 320 320">
-        <defs><pattern id="pop-dots" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="2.2" fill="rgba(15,42,115,.28)" /></pattern></defs>
-        <polygon className="pop-sh" points={burstPts(168, 168, 150, 112, 16)} />
-        <polygon className="pop-b1" points={burstPts(160, 160, 150, 112, 16)} />
-        <polygon className="pop-dt" points={burstPts(160, 160, 150, 112, 16)} />
-        <polygon className="pop-b2" points={burstPts(160, 160, 112, 92, 16)} />
-        <text className="pop-n" ref={numRef} x="160" y="188" textAnchor="middle">0.0</text>
-        <g transform="translate(70 206)">{[0, 1, 2, 3, 4].map(i => <path key={i} className="pop-st" d={STAR} transform={`translate(${i * 36} 0) scale(1.35)`} />)}</g>
-        <g transform="rotate(-5 160 262)"><rect className="pop-rb" x="64" y="242" width="192" height="40" /><text className="pop-rt" x="160" y="269" textAnchor="middle">GOOGLE RATING</text></g>
-      </svg>
-    </div>, document.body)
-}
 // Only the review lines and ratings the owner supplied from the Google listing.
 const REVIEWS = ['Special mention for the frequent water checks and delicious food arrangements.', 'Catered to the tastes of the children as well as the staff.', 'The food, the people, the vibes - everything was top-notch!']
 function Reviews() {
   const root = useRef(), big = useRef(), cnt = useRef(), num = useRef()
-  const popRef = useRef(), cardRef = useRef(), raysRef = useRef(), numRef = useRef()
-  useEffect(() => {
-    if (reduce) return
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: root.current, start: 'top 60%', once: true,
-        onEnter: () => {
-          if (popDone || !mqPhone().matches || !popRef.current) return
-          popDone = true
-          const el = popRef.current, n = { v: 0 }
-          gsap.set(el, { display: 'grid' })
-          const tl = gsap.timeline({ onComplete: () => gsap.set(el, { display: 'none' }) })
-          tl.fromTo(raysRef.current, { opacity: 0, scale: 0.4, rotate: -25 }, { opacity: 0.6, scale: 1.25, rotate: 0, duration: 0.5, ease: 'power2.out' }, 0)
-            .fromTo(cardRef.current, { scale: 0, rotate: -30, opacity: 1 }, { scale: 1, rotate: -6, duration: 0.42, ease: 'back.out(2.4)' }, 0)
-            .to(n, { v: 4.9, duration: 1.05, ease: 'power2.out', onUpdate: () => { if (numRef.current) numRef.current.textContent = n.v.toFixed(1) } }, 0.1)
-            .to(cardRef.current, { scale: 1.1, rotate: -3, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' }, 1.1)
-            .to(raysRef.current, { opacity: 0, duration: 0.35 }, 1.25)
-            .to(cardRef.current, { scale: 0.5, rotate: 10, opacity: 0, y: 40, duration: 0.4, ease: 'power2.in' }, 1.35)
-        }
-      })
-    })
-    return () => ctx.revert()
-  }, [])
   useEffect(() => {
     if (reduce) return
     let io = null
@@ -302,7 +258,6 @@ function Reviews() {
   }, [])
   return (
     <section className="rvs" id="reviews" ref={root}>
-      <PopRating popRef={popRef} cardRef={cardRef} raysRef={raysRef} numRef={numRef} />
       <Wave fill="#fffaf0" />
       <Doodles items={[['star', NV, 56, '5%', '14%', -12, 1.4], ['star', CORAL, 36, '11%', '60%', 10, 1, 1], ['heart', CORAL, 64, '88%', '18%', 10, 1.6], ['star', NV, 44, '92%', '66%', 16, 1, 1], ['squiggle', NV, 120, '70%', '86%', 0, 1.2, 1]]} />
       <div className="rv-big" ref={big} aria-hidden="true">4.9</div>
