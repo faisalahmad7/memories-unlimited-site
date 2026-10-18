@@ -180,7 +180,7 @@ h2 {
   background: transparent !important;
   background-image: none !important;
   font-weight: 900;
-  font-size: clamp(1.9rem, 4.8vw, 4.4rem);
+  font-size: clamp(2.1rem, 5.4vw, 5rem);
   line-height: 1;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -192,9 +192,39 @@ h2 {
   -webkit-text-fill-color: #ffffff !important;
   -webkit-text-stroke: 0;
   filter: none;
-  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 0 26px rgba(255, 200, 61, 0.32), 0 0 64px rgba(43, 179, 240, 0.28), 0 3px 8px rgba(0, 0, 0, 0.6);
   opacity: 1;
   mix-blend-mode: normal;
+}
+
+/* Headline accent: "classroom" in sunshine yellow, with a soft breathing glow behind the headline */
+.hero .h1 .split-word:nth-child(4),
+.hero .h1 .split-word:nth-child(4) .split-char {
+  color: var(--gold) !important;
+  -webkit-text-fill-color: var(--gold) !important;
+}
+
+.hero-in::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -4%;
+  top: 2.5rem;
+  width: min(86%, 820px);
+  height: 14rem;
+  background: radial-gradient(ellipse at 30% 50%, rgba(255, 200, 61, 0.22), rgba(43, 179, 240, 0.14) 45%, transparent 72%);
+  filter: blur(36px);
+  pointer-events: none;
+  animation: hglow 6s ease-in-out infinite alternate;
+}
+
+@keyframes hglow {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-in::before { animation: none; opacity: 0.8; }
 }
 
 /* Keep the flare disabled */
@@ -3124,6 +3154,6 @@ body {
   }
 
   .hero .h1 {
-    font-size: clamp(1.6rem, 7.6vw, 2.6rem);
+    font-size: clamp(1.75rem, 8.2vw, 2.9rem);
   }
 }
