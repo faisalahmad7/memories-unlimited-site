@@ -3137,7 +3137,7 @@ body {
   }
 }
 
-/* About cards: short lists so the first two cards are as full as the third */
+/* About cards: compact chips so the first two cards stay short */
 .abt-cards {
     align-items: stretch
 }
@@ -3152,42 +3152,23 @@ body {
     align-self: flex-start
 }
 
-.abt-card .abt-also {
-    margin-bottom: 1rem
-}
-
 .abt-list {
     list-style: none;
     padding-left: 0 !important;
-    margin: 1rem 0 0 !important;
-    display: grid;
-    gap: .45rem !important
+    margin: .9rem 0 1.1rem !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: .4rem !important
 }
 
 .abt-list li {
-    position: relative;
-    padding-left: 1.1rem
-}
-
-.abt-list li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: .55em;
-    width: .45rem;
-    height: .45rem;
-    border-radius: 50%;
-    background: var(--gold)
-}
-
-.abt-dest li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .1rem .5rem;
-    align-items: baseline
-}
-
-.abt-dest span {
+    padding: .25rem .7rem;
+    border-radius: 999px;
     font-size: .9rem;
-    opacity: .75
+    font-weight: 600;
+    background: rgba(15, 42, 115, .08)
+}
+
+.abt-card.hi .abt-list li {
+    background: rgba(255, 255, 255, .16)
 }

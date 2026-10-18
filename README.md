@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/brand/logo-white.png" alt="Memories Unlimited Tours & Travels" width="380" />
+  <img src="public/brand/logo-white.webp" alt="Memories Unlimited Tours & Travels" width="380" />
 </p>
 
 <h1 align="center">Memories Unlimited Tours &amp; Travels</h1>

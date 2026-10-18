@@ -105,7 +105,7 @@ function Nav() {
   return (
     <nav className={'nav' + (hide ? ' hide' : '')}>
       <a className="brand" href="#top" onClick={e => { e.preventDefault(); go('#top') }}>
-        <img className="logo logo-wide" src="/brand/logo-nav.png" alt="Memories Unlimited Tours and Travels" />
+        <img className="logo logo-wide" src="/brand/logo-nav.webp" alt="Memories Unlimited Tours and Travels" />
       </a>
       <div>{L('#tours', 'Tours')}{L('#gallery', 'Gallery')}{L('#flyers', 'Flyers')}{L('#enquire', 'Enquire', 'pill')}</div>
     </nav>
@@ -398,7 +398,7 @@ function Splash({ onReveal }) {
     return () => { tl.kill(); document.body.style.overflow = '' }
   }, [])
   if (gone) return null
-  return <div className="splash" role="presentation"><img className="sp-logo" src="/brand/logo-white.png" alt="Memories Unlimited Tours and Travels" /><div className="sp-bar" /></div>
+  return <div className="splash" role="presentation"><img className="sp-logo" src="/brand/logo-white.webp" alt="Memories Unlimited Tours and Travels" /><div className="sp-bar" /></div>
 }
 
 const MONTHS = (() => { const d = new Date(); return Array.from({ length: 9 }, (_, i) => new Date(d.getFullYear(), d.getMonth() + i, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' })) })()
@@ -564,7 +564,7 @@ function Footer() {
         </div>
         <div className="fgrid">
           <div className="fcol fbrand">
-            <img className="flogo" src="/brand/logo-white.png" alt={CONFIG.name} />
+            <img className="flogo" src="/brand/logo-white.webp" alt={CONFIG.name} />
             <p className="ftag">School picnics, educational tours and industrial visits, planned from Pune.</p>
             <p className="fchip"><b>4.9</b> on Google from 193 reviews</p>
           </div>
@@ -653,9 +653,6 @@ export default function App() {
                   <li>Industrial visits</li>
                   <li>Nature camps</li>
                 </ul>
-                <p className="abt-also">
-                  Our Singapore tour comes with a tour manager and guide, AC coach travel and 24x7 assistance.
-                </p>
                 <button className="btn gold" onClick={() => go('#enquire')}>
                   Send an enquiry
                 </button>
@@ -666,12 +663,9 @@ export default function App() {
                 <p>
                   From Hampi and Mahabaleshwar to Singapore, discover new places and create memories.
                 </p>
-                <ul className="abt-list abt-dest">
-                  {TOURS.map(t => <li key={t.id}><b>{t.name}</b><span>{t.tag}</span></li>)}
+                <ul className="abt-list">
+                  {TOURS.map(t => <li key={t.id}>{t.name.split(',')[0].replace(' and Agra', '')}</li>)}
                 </ul>
-                <p className="abt-also">
-                  Goa, Manali, Kerala and Imagicaa are available on request.
-                </p>
                 <button className="btn gold" onClick={() => go('#tours')}>
                   See our tours
                 </button>

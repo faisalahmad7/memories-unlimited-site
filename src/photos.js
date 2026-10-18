@@ -18,7 +18,7 @@ export const GALLERY = {
   kerala: { label: 'Kerala', note: 'Popular places in Kerala. Not a confirmed itinerary: ask us what we can plan.', q: [['Kerala backwaters houseboat', 'Kerala backwaters'], ['Munnar tea plantation', 'Munnar'], ['Periyar National Park', 'Periyar'], ['Kovalam beach', 'Kovalam'], ['Alleppey backwaters', 'Alleppey'], ['Athirappilly Falls', 'Athirappilly Falls'], ['Varkala cliff beach', 'Varkala'], ['Fort Kochi Chinese fishing nets', 'Fort Kochi']] },
 }
 
-const API = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=40&prop=imageinfo&iiprop=url%7Csize%7Cmime&iiurlwidth=1800&format=json&origin=*&gsrsearch='
+const API = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=40&prop=imageinfo&iiprop=url%7Csize%7Cmime&iiurlwidth=1280&format=json&origin=*&gsrsearch='
 
 async function search(term, tries = 2) {
   for (let i = 0; i < tries; i++) {
