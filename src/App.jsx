@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -27,6 +28,12 @@ function usePhotos() {
 }
 // Footer and other links: open the gallery on a given destination.
 const showGallery = id => { window.dispatchEvent(new CustomEvent('mu-gallery', { detail: id })); go('#gallery') }
+const mqPhone = () => window.matchMedia('(max-width: 700px)')
+function useIsPhone() {
+  const [p, setP] = useState(() => mqPhone().matches)
+  useEffect(() => { const m = mqPhone(), h = () => setP(m.matches); m.addEventListener('change', h); return () => m.removeEventListener('change', h) }, [])
+  return p
+}
 const go = sel => { const el = document.querySelector(sel); if (el) window.__lenis ? window.__lenis.scrollTo(el) : el.scrollIntoView() }
 
 // Hand-drawn doodles: each is a few stroked paths in a 100x100 box. GSAP draws them on scroll, floats them, and nudges them with the pointer.
@@ -115,6 +122,9 @@ function Nav() {
 const SIDE = [['top', 'Home'], ['about', 'About'], ['tours', 'Tours'], ['gallery', 'Gallery'], ['reviews', 'Reviews'], ['trail', 'Flyers'], ['enquire', 'Enquire']]
 function SideNav() {
   const [cur, setCur] = useState('top')
+  const [scrub, setScrub] = useState(false)
+  const nav = useRef()
+  const st = useRef({ timer: 0, down: false, scrub: false, y0: 0, last: -1, block: false })
   useEffect(() => {
     const ctx = gsap.context(() => {
       SIDE.forEach(([id]) => ScrollTrigger.create({ trigger: '#' + id, start: 'top 55%', end: 'bottom 55%', onToggle: st => st.isActive && setCur(id) }))
@@ -122,10 +132,34 @@ function SideNav() {
     })
     return () => ctx.revert()
   }, [])
+  // Only the dots themselves are touchable. Tap = go to that section. Press and hold (or press and drag) = scrub
+  // through the sections instantly, like flicking through story slides.
+  const nearest = y => { let best = 0, d = 1e9; nav.current.querySelectorAll('a i').forEach((n, i) => { const r = n.getBoundingClientRect(), dd = Math.abs(y - (r.top + r.height / 2)); if (dd < d) { d = dd; best = i } }); return best }
+  const jump = i => { const el = document.getElementById(SIDE[i][0]); if (!el) return; window.__lenis ? window.__lenis.scrollTo(el, { immediate: true }) : el.scrollIntoView(); setCur(SIDE[i][0]) }
+  const buzz = n => { try { navigator.vibrate && navigator.vibrate(n) } catch (e) { } }
+  const begin = e => {
+    const dot = e.target.closest && e.target.closest('i'); if (!dot) return
+    const s = st.current; s.down = true; s.scrub = false; s.y0 = e.clientY; s.last = nearest(e.clientY)
+    try { dot.setPointerCapture(e.pointerId) } catch (err) { }
+    clearTimeout(s.timer)
+    s.timer = setTimeout(() => { if (s.down) { s.scrub = true; setScrub(true); buzz(10) } }, 220)
+  }
+  const move = e => {
+    const s = st.current; if (!s.down) return
+    if (!s.scrub && Math.abs(e.clientY - s.y0) > 8) { clearTimeout(s.timer); s.scrub = true; setScrub(true) }
+    if (!s.scrub) return
+    const i = nearest(e.clientY)
+    if (i !== s.last) { s.last = i; jump(i); buzz(6) }
+  }
+  const end = () => {
+    const s = st.current; clearTimeout(s.timer)
+    if (s.scrub) { s.block = true; setTimeout(() => { s.block = false }, 350) }
+    s.down = false; s.scrub = false; setScrub(false)
+  }
   return (
-    <nav className={'sn' + (cur === 'top' ? ' atop' : '')} aria-label="Page sections">
+    <nav ref={nav} className={'sn' + (cur === 'top' ? ' atop' : '') + (scrub ? ' scrub' : '')} aria-label="Page sections" onPointerDown={begin} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onContextMenu={e => e.preventDefault()}>
       <span className="sn-line" aria-hidden="true"><span className="sn-fill" /></span>
-      {SIDE.map(([id, t]) => <a key={id} href={'#' + id} className={cur === id ? 'on' : ''} aria-label={t} aria-current={cur === id ? 'true' : undefined} onClick={e => { e.preventDefault(); go('#' + id) }}><span className="sn-t">{t}</span><i /></a>)}
+      {SIDE.map(([id, t]) => <a key={id} href={'#' + id} draggable="false" className={cur === id ? 'on' : ''} aria-label={t} aria-current={cur === id ? 'true' : undefined} onClick={e => { e.preventDefault(); if (st.current.block) return; go('#' + id) }}><span className="sn-t">{t}</span><i /></a>)}
     </nav>
   )
 }
@@ -200,10 +234,53 @@ function countTo(el, to, dec, trig, root) {
   const n = { v: 0 }
   gsap.to(n, { v: to, duration: 1.8, ease: 'power2.out', scrollTrigger: { trigger: root, start: 'top 75%', once: true }, onUpdate: () => { el.textContent = n.v.toFixed(dec) } })
 }
+// Pop-art "4.9" that bursts onto phone screens the first time the reviews come into view (once per page load).
+let popDone = false
+const burstPts = (cx, cy, ro, ri, n) => Array.from({ length: n * 2 }, (_, k) => { const a = (Math.PI * k) / n - Math.PI / 2, r = k % 2 ? ri : ro; return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1) }).join(' ')
+const STAR = 'M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5l-6 3.4 1.3-6.7-5-4.7 6.8-.8z'
+function PopRating({ popRef, cardRef, raysRef, numRef }) {
+  return createPortal(
+    <div className="pop" ref={popRef} aria-hidden="true">
+      <div className="pop-rays" ref={raysRef} />
+      <svg className="pop-card" ref={cardRef} viewBox="0 0 320 320">
+        <defs><pattern id="pop-dots" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="2.2" fill="rgba(15,42,115,.28)" /></pattern></defs>
+        <polygon className="pop-sh" points={burstPts(168, 168, 150, 112, 16)} />
+        <polygon className="pop-b1" points={burstPts(160, 160, 150, 112, 16)} />
+        <polygon className="pop-dt" points={burstPts(160, 160, 150, 112, 16)} />
+        <polygon className="pop-b2" points={burstPts(160, 160, 112, 92, 16)} />
+        <text className="pop-n" ref={numRef} x="160" y="188" textAnchor="middle">0.0</text>
+        <g transform="translate(70 206)">{[0, 1, 2, 3, 4].map(i => <path key={i} className="pop-st" d={STAR} transform={`translate(${i * 36} 0) scale(1.35)`} />)}</g>
+        <g transform="rotate(-5 160 262)"><rect className="pop-rb" x="64" y="242" width="192" height="40" /><text className="pop-rt" x="160" y="269" textAnchor="middle">GOOGLE RATING</text></g>
+      </svg>
+    </div>, document.body)
+}
 // Only the review lines and ratings the owner supplied from the Google listing.
 const REVIEWS = ['Special mention for the frequent water checks and delicious food arrangements.', 'Catered to the tastes of the children as well as the staff.', 'The food, the people, the vibes - everything was top-notch!']
 function Reviews() {
   const root = useRef(), big = useRef(), cnt = useRef()
+  const popRef = useRef(), cardRef = useRef(), raysRef = useRef(), numRef = useRef()
+  useEffect(() => {
+    if (reduce) return
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: root.current, start: 'top 60%', once: true,
+        onEnter: () => {
+          if (popDone || !mqPhone().matches || !popRef.current) return
+          popDone = true
+          const el = popRef.current, n = { v: 0 }
+          gsap.set(el, { display: 'grid' })
+          const tl = gsap.timeline({ onComplete: () => gsap.set(el, { display: 'none' }) })
+          tl.fromTo(raysRef.current, { opacity: 0, scale: 0.4, rotate: -25 }, { opacity: 0.6, scale: 1.25, rotate: 0, duration: 0.5, ease: 'power2.out' }, 0)
+            .fromTo(cardRef.current, { scale: 0, rotate: -30, opacity: 1 }, { scale: 1, rotate: -6, duration: 0.42, ease: 'back.out(2.4)' }, 0)
+            .to(n, { v: 4.9, duration: 1.05, ease: 'power2.out', onUpdate: () => { if (numRef.current) numRef.current.textContent = n.v.toFixed(1) } }, 0.1)
+            .to(cardRef.current, { scale: 1.1, rotate: -3, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' }, 1.1)
+            .to(raysRef.current, { opacity: 0, duration: 0.35 }, 1.25)
+            .to(cardRef.current, { scale: 0.5, rotate: 10, opacity: 0, y: 40, duration: 0.4, ease: 'power2.in' }, 1.35)
+        }
+      })
+    })
+    return () => ctx.revert()
+  }, [])
   useEffect(() => {
     if (reduce) return
     const ctx = gsap.context(() => {
@@ -216,6 +293,7 @@ function Reviews() {
   }, [])
   return (
     <section className="rvs" id="reviews" ref={root}>
+      <PopRating popRef={popRef} cardRef={cardRef} raysRef={raysRef} numRef={numRef} />
       <Wave fill="#fffaf0" />
       <Doodles items={[['star', NV, 56, '5%', '14%', -12, 1.4], ['star', CORAL, 36, '11%', '60%', 10, 1, 1], ['heart', CORAL, 64, '88%', '18%', 10, 1.6], ['star', NV, 44, '92%', '66%', 16, 1, 1], ['squiggle', NV, 120, '70%', '86%', 0, 1.2, 1]]} />
       <div className="rv-big" ref={big} aria-hidden="true">4.9</div>
@@ -319,6 +397,10 @@ function Modal({ t, onClose, photos }) {
 function Gallery({ gallery, done, onOpen }) {
   const [tab, setTab] = useState('singapore')
   const [lb, setLb] = useState(null)
+  const isPhone = useIsPhone()
+  const [more, setMore] = useState(false)
+  useEffect(() => { setMore(false) }, [tab])
+  useEffect(() => { const t = setTimeout(() => ScrollTrigger.refresh(), 750); return () => clearTimeout(t) }, [more, isPhone])
   const g = GALLERY[tab]
   const items = gallery[tab] || []
   useEffect(() => { const h = e => { if (GALLERY[e.detail]) { setTab(e.detail); setLb(null) } }; window.addEventListener('mu-gallery', h); return () => window.removeEventListener('mu-gallery', h) }, [])
@@ -332,6 +414,7 @@ function Gallery({ gallery, done, onOpen }) {
   const cur = lb !== null ? items[lb] : null
   const [bad, setBad] = useState({})
   const shown = items.filter(p => !bad[p.file])
+  const vis = isPhone && !more ? shown.slice(0, 4) : shown
   return (
     <section className="gal" id="gallery">
       <Wave fill="#1c3f9e" />
@@ -348,11 +431,12 @@ function Gallery({ gallery, done, onOpen }) {
               : <button className="btn ghost" onClick={() => askAbout(t.name)}>Ask us about {t.name}</button>}</p>)
         })()}
         <div className="pgrid" key={tab}>
-          {shown.length ? shown.map((p, i) => (
-            <button key={p.file} className="gi" style={{ '--i': i, '--tilt': (i % 2 ? 1 : -1) * (1 + (i % 3) * 0.5) + 'deg' }} onClick={() => setLb(items.indexOf(p))} aria-label={`Open photo: ${p.cap}`}><img src={p.src} alt={p.cap} loading="lazy" decoding="async" onError={() => setBad(b => ({ ...b, [p.file]: 1 }))} /><span>{p.cap}</span></button>
+          {vis.length ? vis.map((p, i) => (
+            <button key={p.file} className="gi" style={{ '--i': isPhone && more && i >= 4 ? i - 4 : i, '--tilt': (i % 2 ? 1 : -1) * (1 + (i % 3) * 0.5) + 'deg' }} onClick={() => setLb(items.indexOf(p))} aria-label={`Open photo: ${p.cap}`}><img src={p.src} alt={p.cap} loading="lazy" decoding="async" onError={() => setBad(b => ({ ...b, [p.file]: 1 }))} /><span>{p.cap}</span></button>
           )) : done ? <p>We could not load these photos right now. Please refresh the page in a moment.</p>
             : Array.from({ length: 8 }, (_, i) => <span key={i} className="gi gsk" aria-hidden="true" style={{ '--i': i }} />)}
         </div>
+        {isPhone && shown.length > 4 && <p className="gmore-ph"><button className="btn ghost" aria-expanded={more} onClick={() => setMore(m => !m)}>{more ? 'Show fewer photos' : `View ${shown.length - 4} more photos`}</button></p>}
       </div>
       {cur && (
         <div className="lbx" onClick={() => setLb(null)} role="dialog" aria-modal="true" aria-label={cur.cap}>
@@ -602,6 +686,8 @@ export default function App() {
   const [open, setOpen] = useState(null)
   const [ready, setReady] = useState(false)
   const [fb, setFb] = useState(null)
+  const [fmore, setFmore] = useState(false)
+  useEffect(() => { const t = setTimeout(() => ScrollTrigger.refresh(), 750); return () => clearTimeout(t) }, [fmore])
   useReveal(ready)
   useEffect(() => { if (ready) { const t = setTimeout(() => ScrollTrigger.refresh(), 150); const l = () => ScrollTrigger.refresh(); window.addEventListener('load', l); return () => { clearTimeout(t); window.removeEventListener('load', l) } } }, [ready])
   useEffect(() => {
@@ -719,7 +805,9 @@ export default function App() {
           <h2>Where will your class go next?</h2>
           <p>{reduce ? 'Tell us your plan and we will help.' : 'Move your mouse or finger across this page.'}</p>
           <button className="btn gold" onClick={() => go('#enquire')}>Tell us your plan</button>
-          <div className="flyers"><h3 id="flyers">Our flyers. Tap one to read it.</h3>{FLYERS.map((f, i) => <button key={i} onClick={() => setFb(i)} aria-label={`Open flyer: ${f.name}`}><img src={f.src} alt={`${f.name} flyer`} loading="lazy" /></button>)}</div>
+          <div className={'flyers' + (fmore ? ' open' : '')}><h3 id="flyers">Our flyers. Tap one to read it.</h3>
+            {(() => { const fb1 = (f, i) => <button key={i} style={{ '--r': (i % 2 ? 1.6 : -1.6) + 'deg', '--j': Math.max(0, i - 4) }} onClick={() => setFb(i)} aria-label={`Open flyer: ${f.name}`}><img src={f.src} alt={`${f.name} flyer`} loading="lazy" /></button>; return (<>{FLYERS.slice(0, 4).map((f, i) => fb1(f, i))}<div className="fl-more"><div className="fl-in">{FLYERS.slice(4).map((f, i) => fb1(f, i + 4))}</div></div></>) })()}
+            <button className="btn gold fl-toggle" aria-expanded={fmore} onClick={() => { if (fmore) go('#flyers'); setFmore(m => !m) }}>{fmore ? 'Show fewer flyers' : `View ${FLYERS.length - 4} more flyers`}</button></div>
         </div>
       </section>
       <Enquire />
