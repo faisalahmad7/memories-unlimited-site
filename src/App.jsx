@@ -122,7 +122,8 @@ const SIDE = [['top', 'Home'], ['about', 'About'], ['tours', 'Tours'], ['gallery
 function SideNav() {
   const [cur, setCur] = useState('top')
   const [scrub, setScrub] = useState(false)
-  const nav = useRef()
+  const [flash, setFlash] = useState(false)
+  const nav = useRef(), fl = useRef(0)
   const st = useRef({ timer: 0, down: false, scrub: false, y0: 0, last: -1, block: false })
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -141,22 +142,27 @@ function SideNav() {
     const s = st.current; s.down = true; s.scrub = false; s.y0 = e.clientY; s.last = nearest(e.clientY)
     try { dot.setPointerCapture(e.pointerId) } catch (err) { }
     clearTimeout(s.timer)
-    s.timer = setTimeout(() => { if (s.down) { s.scrub = true; setScrub(true); buzz(10) } }, 220)
+    s.timer = setTimeout(() => { if (s.down) { s.scrub = true; setFlash(false); setScrub(true); buzz(10) } }, 220)
   }
   const move = e => {
     const s = st.current; if (!s.down) return
-    if (!s.scrub && Math.abs(e.clientY - s.y0) > 8) { clearTimeout(s.timer); s.scrub = true; setScrub(true) }
+    if (!s.scrub && Math.abs(e.clientY - s.y0) > 8) { clearTimeout(s.timer); s.scrub = true; setFlash(false); setScrub(true) }
     if (!s.scrub) return
     const i = nearest(e.clientY)
     if (i !== s.last) { s.last = i; jump(i); buzz(6) }
   }
   const end = () => {
     const s = st.current; clearTimeout(s.timer)
-    if (s.scrub) { s.block = true; setTimeout(() => { s.block = false }, 350) }
+    if (s.scrub) {
+      s.block = true; setTimeout(() => { s.block = false }, 350)
+      // the label of the section you landed on blinks twice, quickly, then goes away
+      setFlash(true); clearTimeout(fl.current); fl.current = setTimeout(() => setFlash(false), 520)
+    }
     s.down = false; s.scrub = false; setScrub(false)
+    const ae = document.activeElement; if (ae && nav.current && nav.current.contains(ae) && ae.blur) ae.blur()
   }
   return (
-    <nav ref={nav} className={'sn' + (cur === 'top' ? ' atop' : '') + (scrub ? ' scrub' : '')} aria-label="Page sections" onPointerDown={begin} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onContextMenu={e => e.preventDefault()}>
+    <nav ref={nav} className={'sn' + (cur === 'top' ? ' atop' : '') + (scrub ? ' scrub' : '') + (flash ? ' flash' : '')} aria-label="Page sections" onPointerDown={begin} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onContextMenu={e => e.preventDefault()}>
       <span className="sn-line" aria-hidden="true"><span className="sn-fill" /></span>
       {SIDE.map(([id, t]) => <a key={id} href={'#' + id} draggable="false" className={cur === id ? 'on' : ''} aria-label={t} aria-current={cur === id ? 'true' : undefined} onClick={e => { e.preventDefault(); if (st.current.block) return; go('#' + id) }}><span className="sn-t">{t}</span><i /></a>)}
     </nav>
