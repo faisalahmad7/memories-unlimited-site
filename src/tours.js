@@ -16,5 +16,22 @@ export const TRAIL = ['singapore', 'mahabaleshwar', 'hampi', 'jaipur', 'ahmedaba
 // Destinations you named that have no flyer yet. Shown as "ask us"; confirm availability before launch.
 export const EXTRA = [{ id: 'goa', name: 'Goa', tag: 'On request' }, { id: 'manali', name: 'Manali', tag: 'On request' }, { id: 'kerala', name: 'Kerala', tag: 'On request' }, { id: 'imagicaa', name: 'Imagicaa', tag: 'On request' }]
 // Every flyer supplied by the business, in the order received.
-export const FLYERS = [['Singapore tour', 1], ['Learn beyond classrooms', 2], ['Educational tours', 3], ['Visa services', 4], ['Learn beyond classrooms', 5], ['Learn beyond classrooms', 6], ['Learn beyond classrooms', 7], ['Mahabaleshwar picnic', 8], ['Jaipur, Fatehpur Sikri and Agra', 9], ['Hampi tour', 10], ['Singapore tour', 11], ['Ahmedabad tour', 12]]
-  .map(([name, n]) => ({ name, src: `/flyers/flyer-${String(n).padStart(2, '0')}.webp` }))
+// Every flyer supplied by the business, in the order received.
+export const FLYERS = [
+  ['Singapore tour', 1, 1024, 1536],
+  ['Learn beyond classrooms', 2, 1024, 1024],
+  ['Educational tours', 3, 1024, 1536],
+  ['Visa services', 4, 1024, 1450],
+  ['Learn beyond classrooms', 5, 1024, 1450],
+  ['Learn beyond classrooms', 6, 864, 1536],
+  ['Learn beyond classrooms', 7, 864, 1536],
+  ['Mahabaleshwar picnic', 8, 1024, 1536],
+  ['Jaipur, Fatehpur Sikri and Agra', 9, 1024, 1536],
+  ['Hampi tour', 10, 1024, 1536],
+  ['Singapore tour', 11, 1024, 1536],
+  ['Ahmedabad tour', 12, 1024, 1536],
+].map(([name, n, width, height]) => ({
+  name,
+  src: `/flyers/flyer-${String(n).padStart(2, '0')}.webp`,
+  ...(width && height ? { width, height } : {}),
+}));

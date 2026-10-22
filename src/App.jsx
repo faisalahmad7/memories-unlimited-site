@@ -111,7 +111,13 @@ function Nav() {
   return (
     <nav className={'nav' + (hide ? ' hide' : '')}>
       <a className="brand" href="#top" onClick={e => { e.preventDefault(); go('#top') }}>
-        <img className="logo logo-wide" src="/brand/logo-nav.webp" alt="Memories Unlimited Tours and Travels" />
+        <img
+          className="logo logo-wide"
+          alt="Memories Unlimited Tours and Travels"
+          src="/brand/logo-nav.webp"
+          width="640"
+          height="405"
+        />
       </a>
       <div>{L('#tours', 'Tours')}{L('#gallery', 'Gallery')}{L('#flyers', 'Flyers')}{L('#enquire', 'Enquire', 'pill')}</div>
     </nav>
@@ -189,7 +195,15 @@ function Hero({ photos }) {
   const cur = ALL.find(t => t.id === STOP_IDS[si])
   return (
     <header className="hero" id="top" ref={root}>
-      <div className="herobg">{STOP_IDS.map((id, i) => photos[id] && <div key={id} className={'hbg2' + (i === si ? ' on' : '')} style={{ backgroundImage: `url(${photos[id].src})` }} />)}</div>
+      <div className="herobg">
+        {STOP_IDS.map((id, i) => (
+          <div
+            key={id}
+            className={'hbg2' + (i === si ? ' on' : '')}
+            style={{ backgroundImage: `url(/images/hero/${id}.webp)` }}
+          />
+        ))}
+      </div>
       <div className="aurora"><Aurora colorStops={['#4ad08a', '#2bb3f0', '#ffc83d']} amplitude={1.1} blend={0.6} speed={0.8} paused={reduce} /></div>
       <div className="hero-in">
         <SplitText tag="h1" className="h1" text="Learning beyond the classroom" splitType="words, chars" textAlign="left" delay={28} duration={1.1} ease="power4.out" from={{ opacity: 0, y: 90 }} to={{ opacity: 1, y: 0 }} threshold={0} rootMargin="0px" />
@@ -452,7 +466,18 @@ function Splash({ onReveal }) {
     return () => { tl.kill(); document.body.style.overflow = '' }
   }, [])
   if (gone) return null
-  return <div className="splash" role="presentation"><img className="sp-logo" src="/brand/logo-white.webp" alt="Memories Unlimited Tours and Travels" /><div className="sp-bar" /></div>
+  return (
+    <div className="splash" role="presentation">
+      <img
+        className="sp-logo"
+        src="/brand/logo-white.webp"
+        alt="Memories Unlimited Tours and Travels"
+        width="960"
+        height="608"
+      />
+      <div className="sp-bar" />
+    </div>
+  );
 }
 
 const MONTHS = (() => { const d = new Date(); return Array.from({ length: 9 }, (_, i) => new Date(d.getFullYear(), d.getMonth() + i, 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' })) })()
@@ -618,7 +643,13 @@ function Footer() {
         </div>
         <div className="fgrid">
           <div className="fcol fbrand">
-            <img className="flogo" src="/brand/logo-white.webp" alt={CONFIG.name} />
+            <img
+              className="flogo"
+              src="/brand/logo-white.webp"
+              alt={CONFIG.name}
+              width="960"
+              height="608"
+            />
             <p className="ftag">School picnics, educational tours and industrial visits, planned from Pune.</p>
             <p className="fchip"><b>4.9</b> on Google from 193 reviews</p>
           </div>
@@ -776,7 +807,16 @@ export default function App() {
           <p>{reduce ? 'Tell us your plan and we will help.' : 'Move your mouse or finger across this page.'}</p>
           <button className="btn gold" onClick={() => go('#enquire')}>Tell us your plan</button>
           <div className={'flyers' + (fmore ? ' open' : '')}><h3 id="flyers">Our flyers. Tap one to read it.</h3>
-            {(() => { const fb1 = (f, i) => <button key={i} style={{ '--r': (i % 2 ? 1.6 : -1.6) + 'deg', '--j': Math.max(0, i - 4) }} onClick={() => setFb(i)} aria-label={`Open flyer: ${f.name}`}><img src={f.src} alt={`${f.name} flyer`} loading="lazy" /></button>; return (<>{FLYERS.slice(0, 4).map((f, i) => fb1(f, i))}<div className="fl-more"><div className="fl-in">{FLYERS.slice(4).map((f, i) => fb1(f, i + 4))}</div></div></>) })()}
+            {(() => {
+              const fb1 = (f, i) => <button key={i} style={{ '--r': (i % 2 ? 1.6 : -1.6) + 'deg', '--j': Math.max(0, i - 4) }} onClick={() => setFb(i)} aria-label={`Open flyer: ${f.name}`}><img
+                src={f.src}
+                alt={`${f.name} flyer`}
+                loading="lazy"
+                width={f.width}
+                height={f.height}
+              />
+              </button>; return (<>{FLYERS.slice(0, 4).map((f, i) => fb1(f, i))}<div className="fl-more"><div className="fl-in">{FLYERS.slice(4).map((f, i) => fb1(f, i + 4))}</div></div></>)
+            })()}
             <button className="btn gold fl-toggle" aria-expanded={fmore} onClick={() => { if (fmore) go('#flyers'); setFmore(m => !m) }}>{fmore ? 'Show fewer flyers' : `View ${FLYERS.length - 4} more flyers`}</button></div>
         </div>
       </section>
