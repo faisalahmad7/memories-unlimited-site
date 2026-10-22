@@ -716,7 +716,7 @@ export default function App() {
       <Splash onReveal={() => setReady(true)} />
       <Nav />
       {ready && <SideNav />}
-      {ready && <Hero photos={photos} />}
+      {<Hero photos={photos} />}
       <section className="manifesto" id="about">
         <Doodles items={[['sun', Y, 96, '86%', '6%', 0, 1.2], ['book', SKY, 80, '4%', '12%', -8, 1.4, 1], ['pencil', CORAL, 76, '90%', '72%', 16, 1.6, 1], ['star', NV, 38, '12%', '80%', 8, 1], ['cloud', SKY, 90, '50%', '4%', 0, 0.8, 1], ['spark', CORAL, 30, '70%', '86%', 0, 1.6]]} />
         <svg className="mroute" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path id="mrp" d="M-20 260 C 220 40, 480 330, 700 150 S 1100 20, 1240 120" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="2 14" strokeLinecap="round" />{!reduce && <path d="M-14 -9 L22 0 L-14 9 L-8 0 Z" fill="currentColor"><animateMotion dur="14s" repeatCount="indefinite" rotate="auto"><mpath href="#mrp" /></animateMotion></path>}</svg>
