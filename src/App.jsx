@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+const ImageTrail = lazy(() => import('./rb/ImageTrail/ImageTrail.jsx'))
 import Aurora from './rb/Aurora/Aurora.jsx'
 import SplitText from './rb/SplitText/SplitText.jsx'
-import ScrollReveal from './rb/ScrollReveal/ScrollReveal.jsx'
-import ScrollVelocity from './rb/ScrollVelocity/ScrollVelocity.jsx'
+const ScrollReveal = lazy(() => import('./rb/ScrollReveal/ScrollReveal.jsx'))
+const ScrollVelocity = lazy(() => import('./rb/ScrollVelocity/ScrollVelocity.jsx'))
 import CircularText from './rb/CircularText/CircularText.jsx'
-import ImageTrail from './rb/ImageTrail/ImageTrail.jsx'
+
 import Magnet from './rb/Magnet/Magnet.jsx'
 import GlareHover from './rb/GlareHover/GlareHover.jsx'
 import ClickSpark from './rb/ClickSpark/ClickSpark.jsx'
@@ -720,7 +721,24 @@ export default function App() {
         <Doodles items={[['sun', Y, 96, '86%', '6%', 0, 1.2], ['book', SKY, 80, '4%', '12%', -8, 1.4, 1], ['pencil', CORAL, 76, '90%', '72%', 16, 1.6, 1], ['star', NV, 38, '12%', '80%', 8, 1], ['cloud', SKY, 90, '50%', '4%', 0, 0.8, 1], ['spark', CORAL, 30, '70%', '86%', 0, 1.6]]} />
         <svg className="mroute" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path id="mrp" d="M-20 260 C 220 40, 480 330, 700 150 S 1100 20, 1240 120" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="2 14" strokeLinecap="round" />{!reduce && <path d="M-14 -9 L22 0 L-14 9 L-8 0 Z" fill="currentColor"><animateMotion dur="14s" repeatCount="indefinite" rotate="auto"><mpath href="#mrp" /></animateMotion></path>}</svg>
         <div className="wrap">
-          <ScrollReveal baseOpacity={0.12} baseRotation={2} blurStrength={6} textClassName="mtext">Learning does not stop at the classroom door. History becomes a temple you can touch. Science becomes a city you can walk through.</ScrollReveal>
+
+          <Suspense
+            fallback={
+              <p className="mtext">
+                Learning does not stop at the classroom door. History becomes a temple you can touch. Science becomes a city you can walk through.
+              </p>
+            }
+          >
+            <ScrollReveal
+              baseOpacity={0.12}
+              baseRotation={2}
+              blurStrength={6}
+              textClassName="mtext"
+            >
+              Learning does not stop at the classroom door. History becomes a temple you can touch. Science becomes a city you can walk through.
+            </ScrollReveal>
+          </Suspense>
+
           <div className="abt">
             <div className="abt-stats">
               <p><b>{new Date().getFullYear() - 2013}</b><span>years of travel, since 2013</span></p>
@@ -790,10 +808,30 @@ export default function App() {
 
           </div>
         </div></section>
+
       <div className="band">
-        {reduce ? <p className="static">School picnics ✦ Educational tours ✦ Industrial visits</p>
-          : <ScrollVelocity texts={['School picnics ✦ Educational tours ✦ Industrial visits ✦', 'Learning beyond the classroom ✦ From Pune ✦']} velocity={70} className="bandtext" />}
+        {reduce ? (
+          <p className="static">
+            School picnics ✦ Educational tours ✦ Industrial visits
+          </p>
+        ) : (
+          <Suspense fallback={
+            <p className="static">
+              School picnics ✦ Educational tours ✦ Industrial visits
+            </p>
+          }>
+            <ScrollVelocity
+              texts={[
+                'School picnics ✦ Educational tours ✦ Industrial visits ✦',
+                'Learning beyond the classroom ✦ From Pune ✦'
+              ]}
+              velocity={70}
+              className="bandtext"
+            />
+          </Suspense>
+        )}
       </div>
+
       <Reel />
       <Tours onOpen={setOpen} photos={photos} />
       <Gallery gallery={gallery} done={done} onOpen={setOpen} />
@@ -801,7 +839,13 @@ export default function App() {
       <section className="trail" id="trail">
         <Wave fill="#ffc83d" />
         <Doodles items={[['star', Y, 54, '6%', '16%', -10, 1.4], ['plane', SKY, 80, '86%', '12%', 14, 1.6], ['sun', Y, 70, '90%', '62%', 0, 1, 1], ['cloud', WH, 100, '4%', '70%', 0, 1.2, 1], ['spark', WH, 36, '30%', '8%', 0, 1.8]]} />
-        {!reduce && trailItems.length > 0 && <div className="stage"><ImageTrail items={trailItems} variant={1} /></div>}
+        {!reduce && trailItems.length > 0 && (
+          <Suspense fallback={null}>
+            <div className="stage">
+              <ImageTrail items={trailItems} variant={1} />
+            </div>
+          </Suspense>
+        )}
         <div className="copy rv">
           <h2>Where will your class go next?</h2>
           <p>{reduce ? 'Tell us your plan and we will help.' : 'Move your mouse or finger across this page.'}</p>
