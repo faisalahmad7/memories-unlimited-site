@@ -1,0 +1,9 @@
+MEMORIES UNLIMITED: START HERE (updated session 3)
+
+1. Open this folder as the project in Claude Code (or upload the ZIP to a Claude session).
+2. Read Memories_Unlimited_Master_Prompt_and_Handoff.md fully, especially PART C (status, owner questions, next tasks).
+3. First action: npm install && npm run build. Nothing has been built or viewed in a browser since session 1 because the
+   npm registry was unreachable in sessions 1, 2 and 3.
+4. New in session 3: src/rates.js (all 106 rate rows from the 2026-27 sheet, NOT owner-verified), MEDIA_MANIFEST.md,
+   deduplicated flyers, Google review numbers removed.
+5. Do not claim the site is production-ready until the definition of done in Part A is verified.
