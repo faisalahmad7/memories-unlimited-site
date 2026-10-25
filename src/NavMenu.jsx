@@ -12,6 +12,7 @@ import { FLYERS } from './tours.js'
 import { Icon } from './icons.jsx'
 import { GROUPS } from './groups.js'
 import './nav-menu.css'
+import './nav-polish.css'
 
 const PAGES = [['/safety', 'Safety'], ['/faqs', 'FAQs'], ['/about', 'About'], ['/contact', 'Contact']]
 const mq = q => typeof matchMedia === 'function' && matchMedia(q).matches
@@ -48,7 +49,7 @@ function Menu({ id, label, to, onHash, className = '', ctl, children }) {
 }
 
 // Half-circle wheel: the four paths sit on the arc; "Click to view / All trips" is the hub at the bottom.
-function Wheel({ pick }) {
+function Wheel({ pick, mobile = false }) {
   return (
     <div className="wheel">
       <span className="wheel-spin" aria-hidden="true"><i /><b /></span>
@@ -58,21 +59,21 @@ function Wheel({ pick }) {
           const a = Math.PI * (1 - (i + 0.5) / GROUPS.length)
           return (
             <li key={g.id} style={{ left: 50 + 37 * Math.cos(a) + '%', top: 100 - 66 * Math.sin(a) + '%', '--c': g.color }}>
-              <a className="wheel-item" href={'/tours#' + g.id} onClick={pick('/tours#' + g.id)}><span className="wheel-ic"><Icon n={g.icon} size={34} /></span><span>{g.short}</span></a>
+              <a className="wheel-item" href={'/tours#' + g.id} onClick={pick('/tours#' + g.id)}><span className="wheel-ic"><Icon n={g.icon} size={mobile ? 26 : 34} /></span><span>{g.short}</span></a>
             </li>
           )
         })}
       </ul>
-      <a className="wheel-go" href="/tours" onClick={pick('/tours')}>Click to view<b>All trips</b></a>
+      <a className="wheel-go" href="/tours" onClick={pick('/tours')}>{mobile ? 'Tap to view' : 'Click to view'}<b>All trips</b></a>
     </div>
   )
 }
 
 // ---------- Phones: hamburger + slide-in menu ----------
-const HOME_ROWS = [['#top', 'Home'], ['#about', 'About us'], ['#tours', 'Tours'], ['#gallery', 'Gallery'], ['#reviews', 'Reviews'], ['#flyers', 'Flyers'], ['#enquire', 'Enquire']]
-const HOME_MORE = [['/tours', 'All trips'], ['/safety', 'Safety'], ['/faqs', 'FAQs'], ['/contact', 'Contact']]
-const PAGE_ROWS = [['/', 'Home'], ['/tours', 'Trips'], ['/#gallery', 'Gallery'], ['/#flyers', 'Flyers'], ['/about', 'About us'], ['/#enquire', 'Enquire']]
-const PAGE_MORE = [['/safety', 'Safety'], ['/faqs', 'FAQs'], ['/contact', 'Contact']]
+const HOME_ROWS = [['#top', 'Home'], ['#about', 'About us'], ['#gallery', 'Gallery'], ['#reviews', 'Reviews'], ['#flyers', 'Flyers']]
+const HOME_MORE = [['#tours', 'Popular tours'], ['/safety', 'Safety'], ['/faqs', 'FAQs'], ['/contact', 'Contact']]
+const PAGE_ROWS = [['/', 'Home'], ['/#gallery', 'Gallery'], ['/#flyers', 'Flyers'], ['/about', 'About us']]
+const PAGE_MORE = [['/#tours', 'Popular tours'], ['/safety', 'Safety'], ['/faqs', 'FAQs'], ['/contact', 'Contact']]
 const DOTS = ['#ffc83d', '#0b8fd6', '#ff6b57', '#1f7a33', '#6d3fc0', '#ffc83d', '#ff6b57']
 
 function MobileMenu({ onHash, path }) {
@@ -121,6 +122,10 @@ function MobileMenu({ onHash, path }) {
               <button ref={x} type="button" className="mm-x" aria-label="Close menu" onClick={() => hide()}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
             </div>
             <nav aria-label="Menu">
+              <section className="mm-trips" aria-labelledby="mm-trips-h">
+                <p className="mm-trips-h" id="mm-trips-h">Trips for every kind of school day</p>
+                <Wheel mobile pick={() => () => setOpen(false)} />
+              </section>
               <ul className="mm-list">
                 {rows.map(([h, t], i) => (
                   <li key={h} style={{ '--i': i }}>

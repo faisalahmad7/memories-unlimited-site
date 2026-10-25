@@ -27,7 +27,7 @@ export function About() {
   ]
   return (
     <PageShell theme="sky">
-      <Hero variant="split" motif="bus" title="Planning school trips from Pune and Mumbai" tagline={`Since ${FOUNDED}, trusted by thousands of students and parents.`} photos={photos}
+      <Hero variant="split" motif="bus" title="Planning school trips from Pune and Mumbai" tagline={`Since ${FOUNDED}, trusted by schools and thousands of students.`} photos={photos}
         lead="We are a tour and travel company that plans school picnics, educational field trips, camps and longer tours for schools and groups."
         chips={['Learning beyond the classroom', 'Our own coaches', 'Good hotels']} art={<Art.Flag />}
         actions={<><WaButton text="Hello Memories Unlimited! I would like to plan a school trip.">Plan a trip with us</WaButton><a className="pg-btn ghost on-dark" href="/tours">See our trips</a></>} />

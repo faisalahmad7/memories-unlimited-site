@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './App.css'
+import './polish.css'
 
 // Lightweight routing: real URL paths, resolved once on load. Links between routes are normal <a href> links, so
 // direct load, refresh, back and forward all work without a router library. The server must serve index.html for
@@ -22,4 +23,8 @@ function Route() {
   if (m) return <TourCategory slug={m[1]} />
   return <NotFound />
 }
-createRoot(document.getElementById('root')).render(<Suspense fallback={null}><Route /></Suspense>)
+// Shown while a page's code downloads, so people see the logo instead of a blank white screen.
+function PageLoader() {
+  return <div className="splash route-splash" role="status" aria-label="Loading"><img className="sp-logo" src="/brand/logo-white.webp" alt="Memories Unlimited Tours and Travels" /><div className="sp-bar" /></div>
+}
+createRoot(document.getElementById('root')).render(<Suspense fallback={<PageLoader />}><Route /></Suspense>)

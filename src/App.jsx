@@ -16,6 +16,7 @@ import { TOURS, EXTRA, FLYERS } from './tours.js'
 import { loadPhotos, GALLERY } from './photos.js'
 import NavMenus from './NavMenu.jsx'
 import TrustRibbon from './TrustRibbon.jsx'
+import { GROUPS as TRIP_KINDS } from './groups.js'
 import { YEARS, FOUNDED, OWNER, EXPERIENCE } from './trust.js'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -178,6 +179,7 @@ function Hero({ photos }) {
   const [si, setSi] = useState(0)
   const [hold, setHold] = useState(false)
   const N = STOP_IDS.length
+  const phone = useIsPhone()
   // Only the photo on screen and the next one are loaded; the rest wait their turn (big saving on phone data).
   const [seen, setSeen] = useState(() => new Set([0, 1]))
   useEffect(() => { setSeen(p => (p.has(si) && p.has((si + 1) % N) ? p : new Set([...p, si, (si + 1) % N]))) }, [si, N])
@@ -191,7 +193,7 @@ function Hero({ photos }) {
       tl.from('.hx-w > span', { yPercent: 115, rotate: 4, duration: 1.15, stagger: 0.09 }, 0.15)
         .from('.hx-line path', { strokeDashoffset: 320, duration: 1.1, ease: 'power2.inOut' }, 0.9)
         .from('.hx-sub', { y: 24, opacity: 0, duration: 0.9 }, 0.8)
-        .from('.hx-cta > *', { y: 22, opacity: 0, duration: 0.8, stagger: 0.1 }, 1.0)
+        .from('.hx-cta > *, .hx-kinds', { y: 22, opacity: 0, duration: 0.8, stagger: 0.1 }, 1.0)
         .from('.hx-ticket', { y: 40, opacity: 0, duration: 1 }, 1.1)
       const st = { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true }
       gsap.to('.hx-layers', { yPercent: 12, ease: 'none', scrollTrigger: st })
@@ -243,9 +245,18 @@ function Hero({ photos }) {
         </h1>
         <p className="hx-sub">School trips, educational tours and industrial visits, planned from Pune and Mumbai.</p>
         <div className="hx-cta">
-          <button className="btn gold" onClick={() => go('#enquire')}>Plan our school trip</button>
-          <button className="btn ghost" onClick={() => go('#tours')}>See our tours</button>
+          {phone
+            ? <a className="btn gold hx-all" href="/tours">Explore all school trips</a>
+            : <button className="btn gold" onClick={() => go('#enquire')}>Plan our school trip</button>}
+          {phone
+            ? <button className="btn ghost" onClick={() => go('#enquire')}>Plan our school trip</button>
+            : <button className="btn ghost" onClick={() => go('#tours')}>See our tours</button>}
         </div>
+        {phone && (
+          <ul className="hx-kinds" aria-label="Kinds of trips we plan">
+            {TRIP_KINDS.map(g => <li key={g.id}><a href={'/tours#' + g.id} style={{ '--c': g.color }}>{g.short}</a></li>)}
+          </ul>
+        )}
       </div>
       <div className="hx-ticket" role="group" aria-label="Destinations we plan trips to" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)}>
         <div className="hx-count" aria-hidden="true"><b>{String(si + 1).padStart(2, '0')}</b><span>/ {String(N).padStart(2, '0')}</span></div>
@@ -505,7 +516,7 @@ function Splash({ onReveal }) {
     const done = () => { document.body.style.overflow = ''; setGone(true) }
     if (reduce) { onReveal(); const t = setTimeout(done, 500); return () => { clearTimeout(t); document.body.style.overflow = '' } }
     const tl = gsap.timeline({ onComplete: done })
-    tl.fromTo('.sp-logo', { opacity: 0, scale: 0.86, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'power3.out' })
+    tl.fromTo('.sp-logo', { scale: 0.96, y: 8 }, { scale: 1, y: 0, duration: 0.45, ease: 'power3.out' })
       .fromTo('.sp-bar', { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' }, 0.1)
       .add(onReveal, '+=0.2')
       .to('.splash', { yPercent: -100, duration: 0.6, ease: 'power4.inOut' }, '<')
@@ -780,7 +791,7 @@ export default function App() {
             </p>
             <div className="abt-stats">
               <p><b>{YEARS}</b><span>years of school trips, since {FOUNDED}</span></p>
-              <p><b>Thousands</b><span>of students and parents have travelled with us</span></p>
+              <p><b>Thousands</b><span>of students have travelled with us</span></p>
               <p><b>Pune + Mumbai</b><span>Office in Kondhwa Khurd, Pune</span></p>
             </div>
 

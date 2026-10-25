@@ -1,0 +1,36 @@
+/* Pass 12 (Oct 2026): page loader, PC "a memory" fix, calmer phone hero. Loaded after App.css. */
+
+/* Loader between pages (same look as the home page splash) */
+.route-splash .sp-bar { animation: sp-load 1.1s ease-in-out infinite; }
+@keyframes sp-load {
+  0% { transform: scaleX(0); transform-origin: left; }
+  49% { transform: scaleX(1); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* PC: "a memory" is smaller and sits on its own line, so the gold block no longer covers "Every trip" */
+@media (min-width: 701px) {
+  .reel-h { font-size: clamp(3.6rem, 12.5vw, 11.5rem); line-height: 1; gap: .06em; }
+  .reel-h span { line-height: 1; }
+  .reel-b mark { display: inline-block; line-height: .98; padding: .02em .14em .1em; }
+}
+
+/* PHONE hero: headline on two lines, one clear button to all trips, four trip types, quieter destination line */
+@media (max-width: 700px) {
+  .hx-h1 { font-size: clamp(2rem, 10.6vw, 3.3rem); }
+  .hx-row { white-space: nowrap; }
+  .hx-sub { margin-top: .9rem; font-size: 1rem; max-width: 26rem; }
+  .hx-copy { margin-bottom: 1.4rem; }
+  .hx-cta { flex-direction: column; align-items: stretch; gap: .6rem; margin-top: 1.3rem; max-width: 20rem; }
+  .hx-cta .btn { justify-content: center; text-align: center; }
+  .hx-cta .btn.gold { padding: 1rem 1.4rem; font-size: 1.08rem; }
+  .hx-cta .btn.ghost { padding: .7rem 1.2rem; font-size: .95rem; }
+  .hx-kinds { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; max-width: 20rem; }
+  .hx-kinds a { display: flex; align-items: center; gap: .5rem; min-height: 42px; padding: .3rem .8rem; border-radius: 99px; border: 1.5px solid rgba(255, 255, 255, .55); background: rgba(10, 29, 87, .5); color: #fff; font-weight: 700; font-size: .9rem; text-decoration: none; }
+  .hx-kinds a::before { content: ""; flex: none; width: .65rem; height: .65rem; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff; }
+  .hx-kinds a:active { background: rgba(255, 255, 255, .22); }
+  .hx-count, .hx-meta { display: none; }
+  .hx-name { font-size: 1.1rem; }
+  .hx-ticket { padding-top: .7rem; }
+}
